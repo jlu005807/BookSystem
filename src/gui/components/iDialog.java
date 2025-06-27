@@ -190,6 +190,76 @@ public class iDialog {
         dialog.setVisible(true);
     }
 
+    /**
+     * 通用自定义确认对话框，按钮用iButton美化
+     * @param parent 父组件
+     * @param title 标题
+     * @param message 内容
+     * @return 用户是否点击确定
+     */
+    public static boolean showConfirmDialog(Component parent, String title, String message) {
+        JDialog dialog = new JDialog((JFrame) null, title, true);
+        dialog.setSize(480, 260);
+        dialog.setLayout(null);
+        dialog.setResizable(false);
+        dialog.setLocationRelativeTo(parent);
+
+        JLabel iconLabel = new JLabel(u.getImageIcon("select", 60, 60));
+        iconLabel.setBounds(30, 30, 60, 60);
+        dialog.add(iconLabel);
+
+        JLabel msgLabel = new JLabel("<html>" + message.replace("\n", "<br>") + "</html>");
+        msgLabel.setFont(new Font("微软雅黑", Font.PLAIN, 13));
+        msgLabel.setBounds(110, 40, 340, 120);
+        dialog.add(msgLabel);
+
+        gui.components.iButton yesBtn = new gui.components.iButton("确定", gui.components.iButton.ButtonType.PRIMARY);
+        yesBtn.setBounds(130, 180, 90, 38);
+        gui.components.iButton noBtn = new gui.components.iButton("取消", gui.components.iButton.ButtonType.NORMAL);
+        noBtn.setBounds(260, 180, 90, 38);
+        final boolean[] result = {false};
+        yesBtn.addActionListener(e -> {
+            result[0] = true;
+            dialog.dispose();
+        });
+        noBtn.addActionListener(e -> dialog.dispose());
+        dialog.add(yesBtn);
+        dialog.add(noBtn);
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.setVisible(true);
+        return result[0];
+    }
+
+    /**
+     * 通用自定义成功提示对话框，按钮用iButton美化
+     * @param parent 父组件
+     * @param title 标题
+     * @param message 内容
+     */
+    public static void showSuccessDialog(Component parent, String title, String message) {
+        JDialog dialog = new JDialog((JFrame) null, title, true);
+        dialog.setSize(480, 260);
+        dialog.setLayout(null);
+        dialog.setResizable(false);
+        dialog.setLocationRelativeTo(parent);
+
+        JLabel iconLabel = new JLabel(u.getImageIcon("success", 60, 60));
+        iconLabel.setBounds(30, 30, 60, 60);
+        dialog.add(iconLabel);
+
+        JLabel msgLabel = new JLabel("<html>" + message.replace("\n", "<br>") + "</html>");
+        msgLabel.setFont(new Font("微软雅黑", Font.PLAIN, 13));
+        msgLabel.setBounds(110, 40, 340, 120);
+        dialog.add(msgLabel);
+
+        gui.components.iButton okBtn = new gui.components.iButton("确定", gui.components.iButton.ButtonType.PRIMARY);
+        okBtn.setBounds(190, 180, 100, 38);
+        okBtn.addActionListener(e -> dialog.dispose());
+        dialog.add(okBtn);
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.setVisible(true);
+    }
+
     // Test
     public static void main(String[] args) {
         JFrame frame = new JFrame();

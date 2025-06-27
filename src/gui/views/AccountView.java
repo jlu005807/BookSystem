@@ -11,7 +11,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import sql.UserController;
-import sql.UserItem;
+import entity.UserItem;
 import utils.u;
 import gui.components.iDialog;
 
@@ -208,26 +208,52 @@ public class AccountView {
                 final String password1 = new String(passwordField1.getPassword());
                 final String password2 = new String(passwordField2.getPassword());
 
+                // 统一红色边框和标签字体
+                javax.swing.border.Border defaultBorder = BorderFactory.createLineBorder(new Color(200,200,200), 1);
+                javax.swing.border.Border margin = BorderFactory.createEmptyBorder(4, 8, 4, 8);
+                usernameField.setBorder(BorderFactory.createCompoundBorder(defaultBorder, margin));
+                passwordField1.setBorder(BorderFactory.createCompoundBorder(defaultBorder, margin));
+                passwordField2.setBorder(BorderFactory.createCompoundBorder(defaultBorder, margin));
+                userLabel.setForeground(new Color(33,33,33));
+                userLabel.setFont(new Font("微软雅黑", Font.PLAIN, 15));
+                passLabel.setForeground(new Color(33,33,33));
+                passLabel.setFont(new Font("微软雅黑", Font.PLAIN, 15));
+                passLabel2.setForeground(new Color(33,33,33));
+                passLabel2.setFont(new Font("微软雅黑", Font.PLAIN, 15));
+
+                boolean error = false;
                 if (!password1.equals(password2)) {
                     errorMessage.setText("两次密码不一致！");
-                    return;
-                }
-                if (user.equals("") || password1.equals("")) {
+                    error = true;
+                } else if (user.equals("") || password1.equals("")) {
                     errorMessage.setText("用户名或密码不能为空！");
-                    return;
-                }
-                if (user.length() < 3 || user.length() > 20) {
+                    error = true;
+                } else if (user.length() < 3 || user.length() > 20) {
                     errorMessage.setText("用户名长度应在3-20之间！");
+                    error = true;
+                } else if (!UserController.create(new UserItem(0, user, password1, null, "")).equals("success")) {
+                    errorMessage.setText("用户已存在！");
+                    error = true;
+                }
+                if (error) {
+                    errorMessage.setForeground(new Color(220, 53, 69));
+                    errorMessage.setFont(new Font("微软雅黑", Font.BOLD, 15));
+                    javax.swing.border.Border redBorder = BorderFactory.createLineBorder(new Color(220,53,69), 2);
+                    usernameField.setBorder(BorderFactory.createCompoundBorder(redBorder, margin));
+                    passwordField1.setBorder(BorderFactory.createCompoundBorder(redBorder, margin));
+                    passwordField2.setBorder(BorderFactory.createCompoundBorder(redBorder, margin));
+                    userLabel.setForeground(new Color(220,53,69));
+                    userLabel.setFont(new Font("微软雅黑", Font.BOLD, 15));
+                    passLabel.setForeground(new Color(220,53,69));
+                    passLabel.setFont(new Font("微软雅黑", Font.BOLD, 15));
+                    passLabel2.setForeground(new Color(220,53,69));
+                    passLabel2.setFont(new Font("微软雅黑", Font.BOLD, 15));
                     return;
                 }
 
                 //向数据库储存用户名和密码
-                if (UserController.create(new UserItem(0, user, password1, null, "")).equals("success")) {
-                    iDialog.dialogMessage(null, "完成！", "注册成功！去登录吧～");
-                    w.dispose();
-                } else {
-                    errorMessage.setText("用户已存在！");
-                }
+                iDialog.dialogMessage(null, "完成！", "注册成功！去登录吧～");
+                w.dispose();
             };
             loginButton.addListener(doRegister);
             usernameField.addActionListener(doRegister);
@@ -264,11 +290,5 @@ public class AccountView {
 
             w.done();
         }
-    }
-
-    // 测试
-    public static void main(String[] args) {
-        new LoginView(null);
-        new RegisterView(null);
     }
 }

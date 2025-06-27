@@ -1,6 +1,7 @@
 package sql;
 
 import utils.u;
+import entity.UserItem;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;

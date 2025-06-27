@@ -22,38 +22,7 @@ public class Main {
 
     public static void main(String[] args) {
         ConnectionPool.init(config);
-
-        iWindow w = new iWindow("BookSystem", 800, 800, true);
-        ActionListener changePanelListener = e -> {
-            String command = e.getActionCommand();
-            u.log(command);
-            CardLayout cardLayout = (CardLayout) w.getContentPane().getLayout();
-            cardLayout.show(w.getContentPane(), command);
-            w.setLoginMenuBar();
-        };
-        w.setWelcomeMenuBar(changePanelListener);
-        w.setLayout(new CardLayout());
-
-        //欢迎界面
-        JPanel welcomePanel = new JPanel(new BorderLayout());
-        iLabel welcomeImage = new iLabel(
-                "BookSystem",
-                "car-rental.png",
-                200, 200,
-                iLabel.VERTICAL
-        );
-        welcomeImage.setCenter();
-        welcomePanel.add(welcomeImage, BorderLayout.CENTER);
-        w.add(welcomePanel, "welcome");
-
-
-        //用户租赁界面
-        w.add(new UserView(), "user");
-        //管理员界面
-        w.add(new RootView(), "root");
-
-
-
-        w.done();
+        gui.Sys sys = new gui.Sys();
+        // 以后如需注销后回到欢迎界面，可直接调用 sys.showWelcome();
     }
 }
