@@ -5,6 +5,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import entity.Book;
+import sql.BorrowController;
 
 /**
  * 图书信息行组件，适配 Book 实体，美观卡片样式
@@ -14,38 +15,99 @@ public class BookRow extends JPanel {
     private Color normalBg = Color.WHITE;
     private Color hoverBg = new Color(245, 250, 255);
     private Color borderColor = new Color(220, 230, 240);
+    private Color borrowedBg = new Color(255, 248, 220); // 已借阅的背景色
+    private Color borrowedBorderColor = new Color(255, 193, 7); // 已借阅的边框色
+    private boolean isBorrowed = false;
 
     public <E> BookRow(E book, ActionListener listener, boolean showOperation) {
+        this(book, listener, showOperation, 0); // 默认用户ID为0
+    }
+
+    public <E> BookRow(E book, ActionListener listener, boolean showOperation, int userId) {
         setLayout(new BorderLayout(12, 0));
         setOpaque(false);
         setBackground(normalBg);
         setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createEmptyBorder(8, 16, 8, 16),
+            BorderFactory.createEmptyBorder(6, 12, 6, 12),
             BorderFactory.createLineBorder(borderColor, 1, true)
         ));
+        
+        // 设置固定高度，确保所有书籍卡片高度一致
+        setPreferredSize(new Dimension(getPreferredSize().width, 90));
+        setMaximumSize(new Dimension(Integer.MAX_VALUE, 90));
+        
         if (book instanceof Book) {
             Book b = (Book) book;
             this.id = b.getId();
             System.out.println("BookRow 构造 id: " + this.id);
 
+            // 检查用户是否已借阅这本书
+            if (userId > 0) {
+                isBorrowed = BorrowController.hasUserBorrowedBook(userId, this.id);
+            }
+
+            // 如果已借阅，调整样式
+            if (isBorrowed) {
+                setBackground(borrowedBg);
+                setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createEmptyBorder(6, 12, 6, 12),
+                    BorderFactory.createLineBorder(borrowedBorderColor, 2, true)
+                ));
+            }
+
             // 左侧信息区
             JPanel infoPanel = new JPanel();
             infoPanel.setOpaque(false);
             infoPanel.setLayout(new GridLayout(2, 2, 10, 2));
+            
             JLabel titleLabel = new JLabel(b.getTitle());
-            titleLabel.setFont(new Font("微软雅黑", Font.BOLD, 18));
+            titleLabel.setFont(new Font("微软雅黑", Font.BOLD, 16));
+            titleLabel.setForeground(new Color(33, 33, 33));
+            
             JLabel authorLabel = new JLabel("作者: " + b.getAuthor());
-            authorLabel.setFont(new Font("微软雅黑", Font.PLAIN, 14));
+            authorLabel.setFont(new Font("微软雅黑", Font.PLAIN, 13));
+            authorLabel.setForeground(new Color(66, 66, 66));
+            
             JLabel isbnLabel = new JLabel("ISBN: " + b.getIsbn());
-            isbnLabel.setFont(new Font("微软雅黑", Font.PLAIN, 14));
+            isbnLabel.setFont(new Font("微软雅黑", Font.PLAIN, 13));
+            isbnLabel.setForeground(new Color(66, 66, 66));
+            
             JLabel numLabel = new JLabel("剩余: " + b.getNumLeft() + "/" + b.getNumAll());
-            numLabel.setFont(new Font("微软雅黑", Font.PLAIN, 14));
+            numLabel.setFont(new Font("微软雅黑", Font.PLAIN, 13));
             numLabel.setForeground(new Color(33, 150, 243));
+            
             infoPanel.add(titleLabel);
             infoPanel.add(authorLabel);
             infoPanel.add(isbnLabel);
             infoPanel.add(numLabel);
             add(infoPanel, BorderLayout.CENTER);
+
+            // 右侧状态区
+            JPanel statusPanel = new JPanel(new BorderLayout());
+            statusPanel.setOpaque(false);
+            
+            // 如果已借阅，显示借阅状态
+            if (isBorrowed) {
+                JLabel borrowedLabel = new JLabel("已借阅");
+                borrowedLabel.setFont(new Font("微软雅黑", Font.BOLD, 12));
+                borrowedLabel.setForeground(new Color(255, 152, 0));
+                borrowedLabel.setBorder(BorderFactory.createEmptyBorder(4, 8, 4, 8));
+                statusPanel.add(borrowedLabel, BorderLayout.NORTH);
+            }
+            
+            // 显示用户借阅数量信息（仅对用户界面显示）
+            if (userId > 0 && !showOperation) {
+                int currentBorrowCount = BorrowController.getUserCurrentBorrowCount(userId);
+                JLabel countLabel = new JLabel("已借: " + currentBorrowCount + "/3");
+                countLabel.setFont(new Font("微软雅黑", Font.PLAIN, 11));
+                if (currentBorrowCount >= 3) {
+                    countLabel.setForeground(new Color(244, 67, 54)); // 红色，达到上限
+                } else {
+                    countLabel.setForeground(new Color(76, 175, 80)); // 绿色，未达到上限
+                }
+                countLabel.setBorder(BorderFactory.createEmptyBorder(2, 8, 2, 8));
+                statusPanel.add(countLabel, BorderLayout.CENTER);
+            }
 
             // 右侧操作区
             if (showOperation) {
@@ -55,19 +117,32 @@ public class BookRow extends JPanel {
                 opBtn.setForeground(Color.WHITE);
                 opBtn.setFocusPainted(false);
                 opBtn.setBorder(BorderFactory.createEmptyBorder(6, 18, 6, 18));
-                add(opBtn, BorderLayout.EAST);
+                statusPanel.add(opBtn, BorderLayout.SOUTH);
+            }
+            
+            if (statusPanel.getComponentCount() > 0) {
+                add(statusPanel, BorderLayout.EAST);
             }
         } else {
             throw new IllegalArgumentException("BookRow: 参数类型不是Book");
         }
+        
         // 鼠标悬停高亮
         addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                setBackground(hoverBg);
+                if (!isBorrowed) {
+                    setBackground(hoverBg);
+                } else {
+                    setBackground(new Color(255, 243, 200)); // 已借阅时的悬停色
+                }
                 repaint();
             }
             public void mouseExited(java.awt.event.MouseEvent evt) {
-                setBackground(normalBg);
+                if (!isBorrowed) {
+                    setBackground(normalBg);
+                } else {
+                    setBackground(borrowedBg);
+                }
                 repaint();
             }
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -80,6 +155,7 @@ public class BookRow extends JPanel {
                 }
             }
         });
+        
         // 禁止子组件获取焦点，避免事件冒泡
         for (Component comp : getComponents()) {
             comp.setFocusable(false);

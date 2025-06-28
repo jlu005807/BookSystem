@@ -14,17 +14,32 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Comparator;
+import java.util.ArrayList;
 
 public class MyBorrowView extends JDialog {
     public MyBorrowView(Frame owner, int userId, Runnable onReturn) {
         super(owner, "我的借阅", true);
         setLayout(new BorderLayout(10, 10));
         List<BorrowRecord> records = BorrowController.getRecordsByUserId(userId);
-        // 按借阅时间倒序排序，仅保留最近5条
-        records.sort(Comparator.comparing(BorrowRecord::getBorrowTime, Comparator.nullsLast(Comparator.reverseOrder())));
-        if (records.size() > 5) {
-            records = records.subList(0, 5);
+        // 优化排序：未归还的在前，已归还的在后，组内按借阅时间倒序
+        List<BorrowRecord> notReturned = new ArrayList<>();
+        List<BorrowRecord> returned = new ArrayList<>();
+        for (BorrowRecord r : records) {
+            if (r.getReturnTime() == null) {
+                notReturned.add(r);
+            } else {
+                returned.add(r);
+            }
         }
+        Comparator<BorrowRecord> byTimeDesc = Comparator.comparing(BorrowRecord::getBorrowTime, Comparator.nullsLast(Comparator.reverseOrder()));
+        notReturned.sort(byTimeDesc);
+        returned.sort(byTimeDesc);
+        // 合并，未归还的在前
+        List<BorrowRecord> sortedRecords = new ArrayList<>();
+        sortedRecords.addAll(notReturned);
+        sortedRecords.addAll(returned);
+        records = sortedRecords;
+        // 不再截断，只显示全部记录
         Book[] books = BorrowController.getAll();
         Map<Integer, String> bookIdToTitle = new HashMap<>();
         for (Book b : books) {
@@ -55,14 +70,12 @@ public class MyBorrowView extends JDialog {
         table.getTableHeader().setFont(new Font("微软雅黑", Font.BOLD, 16));
         ((DefaultTableCellRenderer) table.getTableHeader().getDefaultRenderer()).setHorizontalAlignment(JLabel.CENTER);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
         // 居中渲染
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
         for (int i = 0; i < table.getColumnCount() - 1; i++) {
             table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
         }
-
         // 操作列渲染为按钮
         table.getColumnModel().getColumn(4).setCellRenderer((tbl, value, isSelected, hasFocus, row, col) -> {
             BorrowRecord record = (BorrowRecord) value;
@@ -106,6 +119,45 @@ public class MyBorrowView extends JDialog {
 
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        // 保证表格始终显示滚动条
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        // 美化滚动条
+        JScrollBar vBar = scrollPane.getVerticalScrollBar();
+        vBar.setUI(new javax.swing.plaf.basic.BasicScrollBarUI() {
+            @Override
+            protected void configureScrollBarColors() {
+                this.thumbColor = new Color(180, 200, 240, 180);
+                this.trackColor = new Color(245, 250, 255);
+            }
+            @Override
+            protected JButton createDecreaseButton(int orientation) {
+                JButton btn = super.createDecreaseButton(orientation);
+                btn.setVisible(false);
+                return btn;
+            }
+            @Override
+            protected JButton createIncreaseButton(int orientation) {
+                JButton btn = super.createIncreaseButton(orientation);
+                btn.setVisible(false);
+                return btn;
+            }
+            @Override
+            protected void paintThumb(Graphics g, JComponent c, Rectangle thumbBounds) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(thumbColor);
+                g2.fillRoundRect(thumbBounds.x, thumbBounds.y, thumbBounds.width, thumbBounds.height, 12, 12);
+                g2.dispose();
+            }
+            @Override
+            protected void paintTrack(Graphics g, JComponent c, Rectangle trackBounds) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setColor(trackColor);
+                g2.fillRoundRect(trackBounds.x, trackBounds.y, trackBounds.width, trackBounds.height, 12, 12);
+                g2.dispose();
+            }
+        });
+        vBar.setPreferredSize(new Dimension(8, Integer.MAX_VALUE));
         add(scrollPane, BorderLayout.CENTER);
 
         // 关闭按钮放右上角，红色美化

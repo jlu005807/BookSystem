@@ -67,13 +67,41 @@ public class iDialog {
     }
 
     /**
+     * 创建通用确认按钮
+     * @param text 按钮文本
+     * @param type 按钮类型
+     * @param action 点击动作
+     * @return 配置好的iButton
+     */
+    private static iButton createButton(String text, iButton.ButtonType type, Runnable action) {
+        iButton button = new iButton(text, type);
+        button.addActionListener(e -> action.run());
+        return button;
+    }
+
+    /**
+     * 创建通用确认对话框按钮组
+     * @param confirmText 确认按钮文本
+     * @param cancelText 取消按钮文本
+     * @param onConfirm 确认动作
+     * @param onCancel 取消动作
+     * @return 按钮数组 [确认按钮, 取消按钮]
+     */
+    private static iButton[] createConfirmButtons(String confirmText, String cancelText, 
+                                                 Runnable onConfirm, Runnable onCancel) {
+        iButton confirmBtn = createButton(confirmText, iButton.ButtonType.PRIMARY, onConfirm);
+        iButton cancelBtn = createButton(cancelText, iButton.ButtonType.NORMAL, onCancel);
+        return new iButton[]{confirmBtn, cancelBtn};
+    }
+
+    /**
      * 自定义退出确认对话框
      * @param parent 父组件
      * @return 用户是否确认退出
      */
     public static boolean showExitDialog(Component parent) {
         JDialog dialog = new JDialog((JFrame) null, "退出", true);
-        dialog.setSize(350, 180);
+        dialog.setSize(380, 200);
         dialog.setLayout(null);
         dialog.setResizable(false);
         dialog.setLocationRelativeTo(parent);
@@ -87,26 +115,17 @@ public class iDialog {
         msgLabel.setBounds(110, 40, 200, 30);
         dialog.add(msgLabel);
 
-        JButton yesBtn = new JButton("确定");
-        yesBtn.setBounds(80, 110, 80, 30);
-        yesBtn.setBackground(new Color(0, 123, 255));
-        yesBtn.setForeground(Color.WHITE);
-        yesBtn.setFocusPainted(false);
-        JButton noBtn = new JButton("取消");
-        noBtn.setBounds(190, 110, 80, 30);
-        noBtn.setBackground(new Color(220, 53, 69));
-        noBtn.setForeground(Color.WHITE);
-        noBtn.setFocusPainted(false);
+        // 使用通用按钮创建方法
         final boolean[] result = {false};
-        yesBtn.addActionListener(e -> {
-            result[0] = true;
-            dialog.dispose();
-        });
-        noBtn.addActionListener(e -> {
-            dialog.dispose();
-        });
-        dialog.add(yesBtn);
-        dialog.add(noBtn);
+        iButton[] buttons = createConfirmButtons("确定", "取消", 
+            () -> { result[0] = true; dialog.dispose(); }, 
+            dialog::dispose);
+        
+        buttons[0].setBounds(80, 120, 90, 38);
+        buttons[1].setBounds(200, 120, 90, 38);
+        
+        dialog.add(buttons[0]);
+        dialog.add(buttons[1]);
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         dialog.setVisible(true);
         return result[0];
@@ -119,7 +138,7 @@ public class iDialog {
      */
     public static boolean showLogoutDialog(Component parent) {
         JDialog dialog = new JDialog((JFrame) null, "注销", true);
-        dialog.setSize(350, 180);
+        dialog.setSize(380, 200);
         dialog.setLayout(null);
         dialog.setResizable(false);
         dialog.setLocationRelativeTo(parent);
@@ -133,26 +152,17 @@ public class iDialog {
         msgLabel.setBounds(110, 40, 220, 30);
         dialog.add(msgLabel);
 
-        JButton yesBtn = new JButton("注销");
-        yesBtn.setBounds(80, 110, 80, 30);
-        yesBtn.setBackground(new Color(0, 123, 255));
-        yesBtn.setForeground(Color.WHITE);
-        yesBtn.setFocusPainted(false);
-        JButton noBtn = new JButton("返回");
-        noBtn.setBounds(190, 110, 80, 30);
-        noBtn.setBackground(new Color(220, 53, 69));
-        noBtn.setForeground(Color.WHITE);
-        noBtn.setFocusPainted(false);
+        // 使用通用按钮创建方法
         final boolean[] result = {false};
-        yesBtn.addActionListener(e -> {
-            result[0] = true;
-            dialog.dispose();
-        });
-        noBtn.addActionListener(e -> {
-            dialog.dispose();
-        });
-        dialog.add(yesBtn);
-        dialog.add(noBtn);
+        iButton[] buttons = createConfirmButtons("注销", "返回", 
+            () -> { result[0] = true; dialog.dispose(); }, 
+            dialog::dispose);
+        
+        buttons[0].setBounds(80, 120, 90, 38);
+        buttons[1].setBounds(200, 120, 90, 38);
+        
+        dialog.add(buttons[0]);
+        dialog.add(buttons[1]);
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         dialog.setVisible(true);
         return result[0];
@@ -199,7 +209,7 @@ public class iDialog {
      */
     public static boolean showConfirmDialog(Component parent, String title, String message) {
         JDialog dialog = new JDialog((JFrame) null, title, true);
-        dialog.setSize(480, 260);
+        dialog.setSize(520, 300);
         dialog.setLayout(null);
         dialog.setResizable(false);
         dialog.setLocationRelativeTo(parent);
@@ -210,21 +220,20 @@ public class iDialog {
 
         JLabel msgLabel = new JLabel("<html>" + message.replace("\n", "<br>") + "</html>");
         msgLabel.setFont(new Font("微软雅黑", Font.PLAIN, 13));
-        msgLabel.setBounds(110, 40, 340, 120);
+        msgLabel.setBounds(110, 40, 380, 160);
         dialog.add(msgLabel);
 
-        gui.components.iButton yesBtn = new gui.components.iButton("确定", gui.components.iButton.ButtonType.PRIMARY);
-        yesBtn.setBounds(130, 180, 90, 38);
-        gui.components.iButton noBtn = new gui.components.iButton("取消", gui.components.iButton.ButtonType.NORMAL);
-        noBtn.setBounds(260, 180, 90, 38);
+        // 使用通用按钮创建方法
         final boolean[] result = {false};
-        yesBtn.addActionListener(e -> {
-            result[0] = true;
-            dialog.dispose();
-        });
-        noBtn.addActionListener(e -> dialog.dispose());
-        dialog.add(yesBtn);
-        dialog.add(noBtn);
+        iButton[] buttons = createConfirmButtons("确定", "取消", 
+            () -> { result[0] = true; dialog.dispose(); }, 
+            dialog::dispose);
+        
+        buttons[0].setBounds(150, 220, 90, 38);
+        buttons[1].setBounds(280, 220, 90, 38);
+        
+        dialog.add(buttons[0]);
+        dialog.add(buttons[1]);
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         dialog.setVisible(true);
         return result[0];
@@ -238,7 +247,7 @@ public class iDialog {
      */
     public static void showSuccessDialog(Component parent, String title, String message) {
         JDialog dialog = new JDialog((JFrame) null, title, true);
-        dialog.setSize(480, 260);
+        dialog.setSize(520, 300);
         dialog.setLayout(null);
         dialog.setResizable(false);
         dialog.setLocationRelativeTo(parent);
@@ -249,12 +258,12 @@ public class iDialog {
 
         JLabel msgLabel = new JLabel("<html>" + message.replace("\n", "<br>") + "</html>");
         msgLabel.setFont(new Font("微软雅黑", Font.PLAIN, 13));
-        msgLabel.setBounds(110, 40, 340, 120);
+        msgLabel.setBounds(110, 40, 380, 160);
         dialog.add(msgLabel);
 
-        gui.components.iButton okBtn = new gui.components.iButton("确定", gui.components.iButton.ButtonType.PRIMARY);
-        okBtn.setBounds(190, 180, 100, 38);
-        okBtn.addActionListener(e -> dialog.dispose());
+        // 使用通用按钮创建方法
+        iButton okBtn = createButton("确定", iButton.ButtonType.PRIMARY, dialog::dispose);
+        okBtn.setBounds(210, 220, 100, 38);
         dialog.add(okBtn);
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         dialog.setVisible(true);

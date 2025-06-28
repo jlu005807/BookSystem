@@ -1,7 +1,9 @@
 package gui.views;
 
 import gui.components.BookViewer;
+import gui.components.BookSearchPanel;
 import gui.components.iLabel;
+import gui.components.iButton;
 import sql.ConnectionPool;
 import sql.MySQLConfig;
 import sql.BorrowController;
@@ -13,6 +15,7 @@ import java.awt.event.ActionEvent;
 
 public class UserView extends JPanel {
     BookViewer bookViewer;
+    BookSearchPanel searchPanel;
     int selectedBookId;
     int userId = 1; // TODO: 实际项目中应由登录用户ID赋值
 
@@ -40,34 +43,48 @@ public class UserView extends JPanel {
         titlePanel.setBorder(BorderFactory.createEmptyBorder(10, 30, 0, 30));
         add(titlePanel, BorderLayout.NORTH);
 
-        // 图书浏览区加圆角白色面板和阴影
-        JPanel bookPanel = new JPanel(new BorderLayout());
-        bookPanel.setBackground(new Color(0,0,0,0));
-        JPanel cardPanel = new JPanel(new BorderLayout());
-        cardPanel.setBackground(Color.WHITE);
-        cardPanel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createEmptyBorder(18, 18, 18, 18),
-                BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(new Color(220, 230, 240), 1, true),
-                        BorderFactory.createEmptyBorder(10, 10, 10, 10)
-                )));
-        bookViewer = new gui.components.BookViewer(e -> {
+        // 搜索区域
+        JPanel searchContainer = new JPanel(new BorderLayout());
+        searchContainer.setOpaque(false);
+        searchContainer.setBorder(BorderFactory.createEmptyBorder(10, 30, 10, 30));
+        
+        // 创建搜索面板
+        searchPanel = new BookSearchPanel(e -> {
             int selectedBookId = Integer.parseInt(e.getActionCommand());
-            System.out.println("UserView 选中图书ID: " + selectedBookId);
+            System.out.println("UserView 搜索选中图书ID: " + selectedBookId);
             idSelectedLabel.setText("您选择了ID为" + selectedBookId + "的图书");
             idSelectedLabel.setForeground(new Color(33, 150, 243));
             // 借阅操作
             new BorrowView(selectedBookId, userId, a -> updateView());
-        }, false);
-        updateView();
-        cardPanel.add(bookViewer, BorderLayout.CENTER);
-        bookPanel.add(cardPanel, BorderLayout.CENTER);
-        bookPanel.setBorder(BorderFactory.createEmptyBorder(10, 30, 10, 30));
-        add(bookPanel, BorderLayout.CENTER);
+        }, false, userId);
+        
+        // 搜索控制按钮
+        JPanel searchControlPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 5));
+        searchControlPanel.setOpaque(false);
+        
+        iButton refreshBtn = createButton("刷新", iButton.ButtonType.NORMAL, e -> {
+            searchPanel.refreshSearchResults();
+            idSelectedLabel.setText("请选择要借阅的图书");
+            idSelectedLabel.setForeground(new Color(120, 144, 156));
+        });
+        
+        iButton clearBtn = createButton("清空搜索", iButton.ButtonType.WARNING, e -> {
+            searchPanel.clearSearch();
+            idSelectedLabel.setText("请选择要借阅的图书");
+            idSelectedLabel.setForeground(new Color(120, 144, 156));
+        });
+        
+        searchControlPanel.add(refreshBtn);
+        searchControlPanel.add(clearBtn);
+        
+        searchContainer.add(searchPanel, BorderLayout.CENTER);
+        searchContainer.add(searchControlPanel, BorderLayout.SOUTH);
+        
+        add(searchContainer, BorderLayout.CENTER);
 
         // 底部按钮区：我的借阅、注销（全部用iButton美化+复用）
         gui.components.iButton myBorrowBtn = createButton("我的借阅", gui.components.iButton.ButtonType.PRIMARY, e -> {
-            new MyBorrowView((Frame) SwingUtilities.getWindowAncestor(this), userId, this::updateView);
+            new MyBorrowView((Frame) SwingUtilities.getWindowAncestor(this), userId, () -> updateView());
         });
         gui.components.iButton logoutBtn = createButton("注销", gui.components.iButton.ButtonType.DANGER, e -> {
             JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
@@ -81,8 +98,8 @@ public class UserView extends JPanel {
     }
 
     private void updateView() {
-        Book[] books = BorrowController.getAll();
-        bookViewer.updateItem(books);
+        // 刷新搜索面板的书籍列表，保持搜索状态
+        searchPanel.refreshSearchResults();
     }
 
     /**

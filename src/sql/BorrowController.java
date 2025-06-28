@@ -169,4 +169,89 @@ public class BorrowController {
             e.printStackTrace();
         }
     }
+
+    // 根据关键词模糊搜索图书
+    public static Book[] searchBooks(String keyword) {
+        List<Book> books = new ArrayList<>();
+        try (Connection conn = ConnectionPool.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "SELECT * FROM book WHERE title LIKE ? OR author LIKE ? OR isbn LIKE ?")) {
+            String searchPattern = "%" + keyword + "%";
+            stmt.setString(1, searchPattern);
+            stmt.setString(2, searchPattern);
+            stmt.setString(3, searchPattern);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                Book book = new Book(
+                        rs.getInt("id"),
+                        rs.getString("isbn"),
+                        rs.getString("title"),
+                        rs.getString("author"),
+                        rs.getInt("numLeft"),
+                        rs.getInt("numAll"),
+                        rs.getDate("addTime")
+                );
+                books.add(book);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        System.out.println("searchBooks() 搜索关键词 '" + keyword + "' 找到 " + books.size() + " 本书");
+        return books.toArray(new Book[0]);
+    }
+
+    // 检查用户是否已借阅某本书（未归还）
+    public static boolean hasUserBorrowedBook(int userId, int bookId) {
+        try (Connection conn = ConnectionPool.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "SELECT COUNT(*) FROM borrow_record WHERE user_id = ? AND book_id = ? AND return_time IS NULL")) {
+            stmt.setInt(1, userId);
+            stmt.setInt(2, bookId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    // 获取用户当前借阅的某本书的借阅记录ID
+    public static int getUserBorrowRecordId(int userId, int bookId) {
+        try (Connection conn = ConnectionPool.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "SELECT id FROM borrow_record WHERE user_id = ? AND book_id = ? AND return_time IS NULL")) {
+            stmt.setInt(1, userId);
+            stmt.setInt(2, bookId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("id");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    // 获取用户当前借阅的图书数量（未归还的）
+    public static int getUserCurrentBorrowCount(int userId) {
+        try (Connection conn = ConnectionPool.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "SELECT COUNT(*) FROM borrow_record WHERE user_id = ? AND return_time IS NULL")) {
+            stmt.setInt(1, userId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    // 检查用户是否达到借阅上限（3本）
+    public static boolean hasReachedBorrowLimit(int userId) {
+        return getUserCurrentBorrowCount(userId) >= 3;
+    }
 } 

@@ -20,9 +20,11 @@ import static gui.actions.actionPopup;
 public class AccountView {
     public static class LoginView {
         final int width = 300;
-        iWindow w = new iWindow("用户登录", width, 340);
+        iWindow w;
 
         public LoginView(String username, ActionListener listener) {
+            String title = "root".equals(username) ? "管理员登录" : "用户登录";
+            w = new iWindow(title, width, 340);
             w.getContentPane().setBackground(new Color(245, 250, 255));
             w.setLayout(null);
 

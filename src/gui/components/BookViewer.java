@@ -13,6 +13,7 @@ public class BookViewer extends JPanel {
     private boolean showOperation;
     private JPanel listPanel;
     private JScrollPane scrollPane;
+    private int userId = 0; // 用户ID，用于检查借阅状态
 
     /**
      * @param listener 点击行时的回调
@@ -26,15 +27,25 @@ public class BookViewer extends JPanel {
      * @param showOperation 是否显示操作按钮（如删除/编辑）
      */
     public BookViewer(ActionListener listener, boolean showOperation) {
+        this(listener, showOperation, 0);
+    }
+
+    /**
+     * @param listener 点击行时的回调
+     * @param showOperation 是否显示操作按钮（如删除/编辑）
+     * @param userId 用户ID，用于检查借阅状态
+     */
+    public BookViewer(ActionListener listener, boolean showOperation, int userId) {
         this.listener = listener;
         this.showOperation = showOperation;
+        this.userId = userId;
         setLayout(new BorderLayout());
         listPanel = new JPanel();
         listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS));
         listPanel.setOpaque(false);
         scrollPane = new JScrollPane(listPanel);
         scrollPane.setBorder(null);
-        scrollPane.getVerticalScrollBar().setUnitIncrement(24);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(20);
         // 美化滚动条
         JScrollBar vBar = scrollPane.getVerticalScrollBar();
         vBar.setUI(new javax.swing.plaf.basic.BasicScrollBarUI() {
@@ -78,13 +89,30 @@ public class BookViewer extends JPanel {
     public void updateItem(Object[] books) {
         listPanel.removeAll();
         if (books == null || books.length == 0) {
-            listPanel.add(new JLabel("暂无图书信息"));
+            // 创建美观的空状态提示
+            JPanel emptyPanel = new JPanel(new BorderLayout());
+            emptyPanel.setOpaque(false);
+            emptyPanel.setBorder(BorderFactory.createEmptyBorder(50, 20, 50, 20));
+            
+            JLabel emptyLabel = new JLabel("暂无图书信息", SwingConstants.CENTER);
+            emptyLabel.setFont(new Font("微软雅黑", Font.PLAIN, 16));
+            emptyLabel.setForeground(new Color(120, 144, 156));
+            
+            emptyPanel.add(emptyLabel, BorderLayout.CENTER);
+            listPanel.add(emptyPanel);
         } else {
-            for (Object book : books) {
+            // 添加间距，确保书籍卡片之间有适当的间隔
+            for (int i = 0; i < books.length; i++) {
+                Object book = books[i];
                 if (book instanceof entity.Book) {
                     System.out.println("BookViewer updateItem id: " + ((entity.Book)book).getId());
                 }
-                listPanel.add(new BookRow(book, listener, showOperation));
+                listPanel.add(new BookRow(book, listener, showOperation, userId));
+                
+                // 在书籍卡片之间添加间距（除了最后一个）
+                if (i < books.length - 1) {
+                    listPanel.add(Box.createVerticalStrut(6));
+                }
             }
         }
         listPanel.revalidate();

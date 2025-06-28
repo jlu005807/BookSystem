@@ -69,7 +69,7 @@ public class Sys {
                         }
                     });
                 } else if ("root".equals(type)) {
-                    new gui.views.AccountView.LoginView(cmd -> {
+                    new gui.views.AccountView.LoginView("root", cmd -> {
                         if ("root".equals(cmd.getActionCommand())) {
                             w.setContentPane(new RootView());
                             w.setJMenuBar(null);
