@@ -21,7 +21,7 @@ public class UserViewTest {
         window.setLayout(new BorderLayout());
         
         // 创建用户界面
-        UserView userView = new UserView();
+        UserView userView = new UserView(1);
         window.setContentPane(userView);
         
         // 显示窗口

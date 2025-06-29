@@ -254,4 +254,54 @@ public class BorrowController {
     public static boolean hasReachedBorrowLimit(int userId) {
         return getUserCurrentBorrowCount(userId) >= 3;
     }
+
+    // 判断是否存在同名同作者的书籍
+    public static Book findSameBook(String title, String author) {
+        try (Connection conn = ConnectionPool.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "SELECT * FROM book WHERE title = ? AND author = ?")) {
+            stmt.setString(1, title);
+            stmt.setString(2, author);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return new Book(
+                        rs.getInt("id"),
+                        rs.getString("isbn"),
+                        rs.getString("title"),
+                        rs.getString("author"),
+                        rs.getInt("numLeft"),
+                        rs.getInt("numAll"),
+                        rs.getDate("addTime")
+                );
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    // 更新图书库存数量
+    public static void updateBookNum(int bookId, int numAll, int numLeft) {
+        try (Connection conn = ConnectionPool.getConnection();
+             PreparedStatement ps = conn.prepareStatement(
+                 "UPDATE book SET numAll = ?, numLeft = ? WHERE id = ?")) {
+            ps.setInt(1, numAll);
+            ps.setInt(2, numLeft);
+            ps.setInt(3, bookId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // 删除某本书的所有借阅记录
+    public static void deleteAllRecordsByBookId(int bookId) {
+        try (Connection conn = ConnectionPool.getConnection();
+             PreparedStatement ps = conn.prepareStatement("DELETE FROM borrow_record WHERE book_id = ?")) {
+            ps.setInt(1, bookId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 } 

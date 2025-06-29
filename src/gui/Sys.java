@@ -63,7 +63,8 @@ public class Sys {
                 if ("user".equals(type)) {
                     new gui.views.AccountView.LoginView(cmd -> {
                         if ("user".equals(cmd.getActionCommand())) {
-                            w.setContentPane(new UserView());
+                            int userId = cmd.getID();
+                            w.setContentPane(new UserView(userId));
                             w.setJMenuBar(null);
                             w.revalidate();
                         }

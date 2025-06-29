@@ -17,9 +17,10 @@ public class UserView extends JPanel {
     BookViewer bookViewer;
     BookSearchPanel searchPanel;
     int selectedBookId;
-    int userId = 1; // TODO: 实际项目中应由登录用户ID赋值
+    int userId;
 
-    public UserView() {
+    public UserView(int userId) {
+        this.userId = userId;
         setLayout(new BorderLayout());
         setBackground(new Color(245, 250, 255));
 
@@ -64,7 +65,7 @@ public class UserView extends JPanel {
             idSelectedLabel.setText("您选择了《" + bookTitle + "》");
             idSelectedLabel.setForeground(new Color(33, 150, 243));
             // 借阅操作
-            new BorrowView(selectedBookId, userId, a -> updateView());
+            new BorrowView(selectedBookId, this.userId, a -> updateView());
         }, false, userId);
         
         // 搜索控制按钮
@@ -93,7 +94,7 @@ public class UserView extends JPanel {
 
         // 底部按钮区：我的借阅、注销（全部用iButton美化+复用）
         gui.components.iButton myBorrowBtn = createButton("我的借阅", gui.components.iButton.ButtonType.PRIMARY, e -> {
-            new MyBorrowView((Frame) SwingUtilities.getWindowAncestor(this), userId, () -> updateView());
+            new MyBorrowView((Frame) SwingUtilities.getWindowAncestor(this), this.userId, () -> updateView());
         });
         gui.components.iButton logoutBtn = createButton("注销", gui.components.iButton.ButtonType.DANGER, e -> {
             JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(this);

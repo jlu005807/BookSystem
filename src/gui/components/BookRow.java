@@ -111,12 +111,16 @@ public class BookRow extends JPanel {
                 statusPanel.add(countLabel, BorderLayout.CENTER);
             }
             if (showOperation) {
-                JButton opBtn = new JButton("操作");
+                JButton opBtn = new JButton("借阅记录");
                 opBtn.setFont(new Font("微软雅黑", Font.PLAIN, 14));
                 opBtn.setBackground(new Color(33, 150, 243));
                 opBtn.setForeground(Color.WHITE);
                 opBtn.setFocusPainted(false);
                 opBtn.setBorder(BorderFactory.createEmptyBorder(6, 18, 6, 18));
+                opBtn.addActionListener(e -> {
+                    // 弹窗显示该书所有借阅记录
+                    new gui.views.BookBorrowRecordView(this.id);
+                });
                 statusPanel.add(opBtn, BorderLayout.SOUTH);
             }
             if (statusPanel.getComponentCount() > 0) {

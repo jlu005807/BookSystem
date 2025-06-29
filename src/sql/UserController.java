@@ -17,11 +17,20 @@ public class UserController {
         );
         if (result == null) return null;
         u.log("查询结果：" + Arrays.toString(result));
+        Timestamp regTime = null;
+        try {
+            regTime = Timestamp.valueOf(result[3]);
+        } catch (Exception e) {
+            // 兼容只有日期无时间的情况
+            try {
+                regTime = result[3] != null ? Timestamp.valueOf(result[3] + " 00:00:00") : null;
+            } catch (Exception ignore) {}
+        }
         return new UserItem(
                 Integer.parseInt(result[0]),
                 result[1],
                 result[2],
-                Timestamp.valueOf(result[3]),
+                regTime,
                 result[4]
         );
     }
@@ -35,11 +44,20 @@ public class UserController {
         );
         if (result == null) return null;
         u.log("查询结果：" + Arrays.toString(result));
+        java.sql.Timestamp regTime = null;
+        try {
+            regTime = java.sql.Timestamp.valueOf(result[3]);
+        } catch (Exception e) {
+            // 兼容只有日期无时间的情况
+            try {
+                regTime = result[3] != null ? java.sql.Timestamp.valueOf(result[3] + " 00:00:00") : null;
+            } catch (Exception ignore) {}
+        }
         return new UserItem(
                 Integer.parseInt(result[0]),
                 result[1],
                 result[2],
-                Timestamp.valueOf(result[3]),
+                regTime,
                 result[4]
         );
     }

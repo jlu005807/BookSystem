@@ -119,6 +119,8 @@ public class RootView extends JPanel implements ActionListener {
             // 使用新的删除确认弹窗
             boolean choice = iDialog.showDeleteConfirmDialog(this, bookName, selectedBookId);
             if (choice) {
+                // 先删除所有相关借阅记录
+                BorrowController.deleteAllRecordsByBookId(selectedBookId);
                 // 执行删除操作
                 BorrowController.delete(selectedBookId);
                 

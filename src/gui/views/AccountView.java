@@ -82,7 +82,11 @@ public class AccountView {
                 final String password = new String(passwordField.getPassword());
                 if (UserController.check(user, password)) {
                     iDialog.showLoginSuccessDialog(w, user);
-                    actionPopup(w, listener, 0,
+                    // 获取userId
+                    sql.UserItem userItem = UserController.search("'" + user + "'");
+                    int userId = userItem != null ? userItem.id : 0;
+                    // 通过ActionEvent传递userId
+                    actionPopup(w, listener, userId,
                             user.equals("root") ? "root" : "user"
                     );
                     w.dispose();

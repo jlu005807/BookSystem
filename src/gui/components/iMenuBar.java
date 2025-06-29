@@ -73,7 +73,7 @@ public class iMenuBar extends JMenu {
                 userRegister.addActionListener(e -> {
                     new AccountView.RegisterView(a -> {
                         u.log(a.getActionCommand());
-                        new UserView();
+                        new UserView(1);
                     });
                 });
                 add(userRegister);

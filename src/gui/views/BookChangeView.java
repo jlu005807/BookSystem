@@ -97,7 +97,31 @@ public class BookChangeView extends JDialog {
             if(book.getTitle().equals("") || book.getIsbn().equals("") || book.getAuthor().equals("") || book.getNumAll() == 0) {
                 iDialog.showWarningDialog(w, "信息未填写完整", "请填写所有字段，且数量需大于0。");
             } else {
-                BorrowController.create(book);
+                // 检查同名同作者
+                sql.Book sameBook = sql.BorrowController.findSameBook(book.getTitle(), book.getAuthor());
+                if (sameBook != null) {
+                    boolean merge = iDialog.showConfirmDialog(w, "书籍已存在", "已存在同名同作者的书籍：\n《" + sameBook.getTitle() + "》\n作者: " + sameBook.getAuthor() + "\n是否合并库存？\n(合并将增加原有库存，不合并则取消添加)");
+                    if (merge) {
+                        // 合并库存
+                        int newNumAll = sameBook.getNumAll() + book.getNumAll();
+                        int newNumLeft = sameBook.getNumLeft() + book.getNumAll();
+                        sameBook.setNumAll(newNumAll);
+                        sameBook.setNumLeft(newNumLeft);
+                        // 更新数据库
+                        sql.BorrowController.updateBookNum(sameBook.getId(), newNumAll, newNumLeft);
+                        iDialog.showSuccessDialog(w, "合并成功", "库存已合并，当前总库存：" + newNumAll);
+                        needUpdate.actionPerformed(new ActionEvent(w, 0, "add"));
+                        // 重置表单
+                        book = new Book();
+                        isbnField.setText("");
+                        titleField.setText("");
+                        authorField.setText("");
+                        numField.setText("");
+                    } // 否则直接取消添加
+                    return;
+                }
+                // 不存在同名同作者，正常添加
+                sql.BorrowController.create(book);
                 iDialog.showSuccessDialog(w, "添加成功", "图书已成功添加！");
                 // 重置表单
                 book = new Book();
