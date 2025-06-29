@@ -58,7 +58,16 @@ public class RootView extends JPanel implements ActionListener {
         searchPanel = new BookSearchPanel(e -> {
             selectedBookId = Integer.parseInt(e.getActionCommand());
             System.out.println("RootView 搜索选中图书ID: " + selectedBookId);
-            idSelectedLabel.setText("您选择了ID为" + selectedBookId + "的图书");
+            // 查找书名
+            String bookTitle = "未知图书";
+            Book[] allBooks = BorrowController.getAll();
+            for (Book book : allBooks) {
+                if (book.getId() == selectedBookId) {
+                    bookTitle = book.getTitle();
+                    break;
+                }
+            }
+            idSelectedLabel.setText("您选择了《" + bookTitle + "》");
             idSelectedLabel.setForeground(new Color(33, 150, 243));
         }, true, 0); // 管理员模式，userId为0
         

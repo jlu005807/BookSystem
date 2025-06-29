@@ -58,35 +58,39 @@ public class BookRow extends JPanel {
             // 左侧信息区
             JPanel infoPanel = new JPanel();
             infoPanel.setOpaque(false);
-            infoPanel.setLayout(new GridLayout(2, 2, 10, 2));
-            
+            infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
+
             JLabel titleLabel = new JLabel(b.getTitle());
-            titleLabel.setFont(new Font("微软雅黑", Font.BOLD, 16));
-            titleLabel.setForeground(new Color(33, 33, 33));
-            
+            titleLabel.setFont(new Font("微软雅黑", Font.BOLD, 18));
+            titleLabel.setForeground(new Color(33, 150, 243));
+            infoPanel.add(titleLabel);
+
             JLabel authorLabel = new JLabel("作者: " + b.getAuthor());
             authorLabel.setFont(new Font("微软雅黑", Font.PLAIN, 13));
             authorLabel.setForeground(new Color(66, 66, 66));
-            
+            infoPanel.add(authorLabel);
+
             JLabel isbnLabel = new JLabel("ISBN: " + b.getIsbn());
             isbnLabel.setFont(new Font("微软雅黑", Font.PLAIN, 13));
-            isbnLabel.setForeground(new Color(66, 66, 66));
-            
-            JLabel numLabel = new JLabel("剩余: " + b.getNumLeft() + "/" + b.getNumAll());
-            numLabel.setFont(new Font("微软雅黑", Font.PLAIN, 13));
-            numLabel.setForeground(new Color(33, 150, 243));
-            
-            infoPanel.add(titleLabel);
-            infoPanel.add(authorLabel);
+            isbnLabel.setForeground(new Color(120, 144, 156));
             infoPanel.add(isbnLabel);
+
+            JLabel numLabel = new JLabel("剩余: " + b.getNumLeft() + "/" + b.getNumAll());
+            numLabel.setFont(new Font("微软雅黑", Font.BOLD, 13));
+            if (b.getNumLeft() == 0) {
+                numLabel.setForeground(new Color(244, 67, 54)); // 红色
+            } else if (b.getNumLeft() <= 2) {
+                numLabel.setForeground(new Color(255, 152, 0)); // 橙色
+            } else {
+                numLabel.setForeground(new Color(76, 175, 80)); // 绿色
+            }
             infoPanel.add(numLabel);
+
             add(infoPanel, BorderLayout.CENTER);
 
             // 右侧状态区
             JPanel statusPanel = new JPanel(new BorderLayout());
             statusPanel.setOpaque(false);
-            
-            // 如果已借阅，显示借阅状态
             if (isBorrowed) {
                 JLabel borrowedLabel = new JLabel("已借阅");
                 borrowedLabel.setFont(new Font("微软雅黑", Font.BOLD, 12));
@@ -94,22 +98,18 @@ public class BookRow extends JPanel {
                 borrowedLabel.setBorder(BorderFactory.createEmptyBorder(4, 8, 4, 8));
                 statusPanel.add(borrowedLabel, BorderLayout.NORTH);
             }
-            
-            // 显示用户借阅数量信息（仅对用户界面显示）
             if (userId > 0 && !showOperation) {
                 int currentBorrowCount = BorrowController.getUserCurrentBorrowCount(userId);
                 JLabel countLabel = new JLabel("已借: " + currentBorrowCount + "/3");
                 countLabel.setFont(new Font("微软雅黑", Font.PLAIN, 11));
                 if (currentBorrowCount >= 3) {
-                    countLabel.setForeground(new Color(244, 67, 54)); // 红色，达到上限
+                    countLabel.setForeground(new Color(244, 67, 54));
                 } else {
-                    countLabel.setForeground(new Color(76, 175, 80)); // 绿色，未达到上限
+                    countLabel.setForeground(new Color(76, 175, 80));
                 }
                 countLabel.setBorder(BorderFactory.createEmptyBorder(2, 8, 2, 8));
                 statusPanel.add(countLabel, BorderLayout.CENTER);
             }
-
-            // 右侧操作区
             if (showOperation) {
                 JButton opBtn = new JButton("操作");
                 opBtn.setFont(new Font("微软雅黑", Font.PLAIN, 14));
@@ -119,7 +119,6 @@ public class BookRow extends JPanel {
                 opBtn.setBorder(BorderFactory.createEmptyBorder(6, 18, 6, 18));
                 statusPanel.add(opBtn, BorderLayout.SOUTH);
             }
-            
             if (statusPanel.getComponentCount() > 0) {
                 add(statusPanel, BorderLayout.EAST);
             }
@@ -130,18 +129,23 @@ public class BookRow extends JPanel {
         // 鼠标悬停高亮
         addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                if (!isBorrowed) {
-                    setBackground(hoverBg);
-                } else {
-                    setBackground(new Color(255, 243, 200)); // 已借阅时的悬停色
-                }
+                setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createEmptyBorder(6, 12, 6, 12),
+                    BorderFactory.createLineBorder(new Color(33, 150, 243), 2, true)
+                ));
                 repaint();
             }
             public void mouseExited(java.awt.event.MouseEvent evt) {
                 if (!isBorrowed) {
-                    setBackground(normalBg);
+                    setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createEmptyBorder(6, 12, 6, 12),
+                        BorderFactory.createLineBorder(borderColor, 1, true)
+                    ));
                 } else {
-                    setBackground(borrowedBg);
+                    setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createEmptyBorder(6, 12, 6, 12),
+                        BorderFactory.createLineBorder(borrowedBorderColor, 2, true)
+                    ));
                 }
                 repaint();
             }

@@ -454,6 +454,64 @@ public class iDialog {
         return result[0];
     }
 
+    /**
+     * 通用自定义错误提示对话框，按钮用iButton美化
+     */
+    public static void showErrorDialog(Component parent, String title, String message) {
+        JDialog dialog = new JDialog((JFrame) null, title, true);
+        dialog.setSize(420, 220);
+        dialog.setLayout(null);
+        dialog.setResizable(false);
+        dialog.setLocationRelativeTo(parent);
+
+        JLabel iconLabel = new JLabel(u.getImageIcon("stop", 60, 60));
+        iconLabel.setBounds(30, 30, 60, 60);
+        dialog.add(iconLabel);
+
+        JLabel msgLabel = new JLabel("<html>" + message.replace("\n", "<br>") + "</html>");
+        msgLabel.setFont(new Font("微软雅黑", Font.PLAIN, 15));
+        msgLabel.setBounds(110, 40, 260, 80);
+        dialog.add(msgLabel);
+
+        iButton okBtn = createButton("确定", iButton.ButtonType.PRIMARY, dialog::dispose);
+        okBtn.setFont(new Font("微软雅黑", Font.BOLD, 14));
+        okBtn.setBounds(160, 140, 100, 38);
+        dialog.add(okBtn);
+
+        dialog.getRootPane().setDefaultButton(okBtn);
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.setVisible(true);
+    }
+
+    /**
+     * 通用自定义警告提示对话框，按钮用iButton美化
+     */
+    public static void showWarningDialog(Component parent, String title, String message) {
+        JDialog dialog = new JDialog((JFrame) null, title, true);
+        dialog.setSize(420, 220);
+        dialog.setLayout(null);
+        dialog.setResizable(false);
+        dialog.setLocationRelativeTo(parent);
+
+        JLabel iconLabel = new JLabel(u.getImageIcon("warning", 60, 60));
+        iconLabel.setBounds(30, 30, 60, 60);
+        dialog.add(iconLabel);
+
+        JLabel msgLabel = new JLabel("<html>" + message.replace("\n", "<br>") + "</html>");
+        msgLabel.setFont(new Font("微软雅黑", Font.PLAIN, 15));
+        msgLabel.setBounds(110, 40, 260, 80);
+        dialog.add(msgLabel);
+
+        iButton okBtn = createButton("确定", iButton.ButtonType.PRIMARY, dialog::dispose);
+        okBtn.setFont(new Font("微软雅黑", Font.BOLD, 14));
+        okBtn.setBounds(160, 140, 100, 38);
+        dialog.add(okBtn);
+
+        dialog.getRootPane().setDefaultButton(okBtn);
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.setVisible(true);
+    }
+
     // Test
     public static void main(String[] args) {
         JFrame frame = new JFrame();
