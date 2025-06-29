@@ -1,4 +1,4 @@
-package entity;
+package sql;
 
 public class BorrowRecord {
     private int id;

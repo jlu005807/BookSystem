@@ -1,4 +1,4 @@
-package entity;
+package sql;
 
 import utils.u;
 

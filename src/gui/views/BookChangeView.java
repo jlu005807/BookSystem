@@ -2,14 +2,14 @@ package gui.views;
 
 import gui.components.*;
 import sql.BorrowController;
-import entity.Book;
+import sql.Book;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class BookChangeView {
+public class BookChangeView extends JDialog {
     final int width = 500;
     Book book = new Book();
 

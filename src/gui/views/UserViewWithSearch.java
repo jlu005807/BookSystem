@@ -6,7 +6,7 @@ import gui.components.iDialog;
 import gui.components.iLabel;
 import gui.components.iWindow;
 import sql.BorrowController;
-import entity.Book;
+import sql.Book;
 
 import javax.swing.*;
 import java.awt.*;

@@ -1,12 +1,17 @@
 package gui.views;
 
+import gui.components.iButton;
 import gui.components.iDialog;
+import sql.Book;
 import sql.BorrowController;
-import entity.Book;
 import java.awt.event.ActionListener;
 import java.sql.Date;
 
-public class BorrowView {
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+
+public class BorrowView extends JDialog {
     public BorrowView(int bookId, int userId, ActionListener needUpdate) {
         System.out.println("BorrowView 传入 bookId: " + bookId);
         Book[] books = BorrowController.getAll();

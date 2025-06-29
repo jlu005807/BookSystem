@@ -269,6 +269,191 @@ public class iDialog {
         dialog.setVisible(true);
     }
 
+    /**
+     * 删除确认对话框 - 专门为删除操作设计
+     * @param parent 父组件
+     * @param itemName 要删除的项目名称
+     * @param itemId 要删除的项目ID
+     * @return 用户是否确认删除
+     */
+    public static boolean showDeleteConfirmDialog(Component parent, String itemName, int itemId) {
+        JDialog dialog = new JDialog((JFrame) null, "确认删除", true);
+        dialog.setSize(450, 280);
+        dialog.setLayout(null);
+        dialog.setResizable(false);
+        dialog.setLocationRelativeTo(parent);
+
+        // 设置对话框背景色
+        dialog.getContentPane().setBackground(new Color(245, 250, 255));
+
+        // 警告图标
+        JLabel iconLabel = new JLabel(u.getImageIcon("warning", 70, 70));
+        iconLabel.setBounds(30, 30, 70, 70);
+        dialog.add(iconLabel);
+
+        // 主标题
+        JLabel titleLabel = new JLabel("确认删除");
+        titleLabel.setFont(new Font("微软雅黑", Font.BOLD, 24));
+        titleLabel.setForeground(new Color(244, 67, 54));
+        titleLabel.setBounds(120, 30, 200, 35);
+        dialog.add(titleLabel);
+
+        // 详细消息
+        String message = String.format("<html><div style='width: 320px;'>" +
+                "您即将删除以下项目：<br><br>" +
+                "<b>%s</b> (ID: %d)<br><br>" +
+                "此操作不可撤销，删除后将无法恢复。<br>" +
+                "请确认是否继续？</div></html>", 
+                itemName, itemId);
+        
+        JLabel msgLabel = new JLabel(message);
+        msgLabel.setFont(new Font("微软雅黑", Font.PLAIN, 14));
+        msgLabel.setForeground(new Color(66, 66, 66));
+        msgLabel.setBounds(120, 70, 320, 120);
+        dialog.add(msgLabel);
+
+        // 按钮区域
+        final boolean[] result = {false};
+        iButton[] buttons = createConfirmButtons("确认删除", "取消", 
+            () -> { result[0] = true; dialog.dispose(); }, 
+            dialog::dispose);
+        
+        // 设置按钮样式
+        buttons[0].setFont(new Font("微软雅黑", Font.BOLD, 14));
+        buttons[0].setPreferredSize(new Dimension(100, 40));
+        buttons[1].setFont(new Font("微软雅黑", Font.BOLD, 14));
+        buttons[1].setPreferredSize(new Dimension(100, 40));
+        
+        buttons[0].setBounds(120, 200, 100, 40);
+        buttons[1].setBounds(240, 200, 100, 40);
+        
+        dialog.add(buttons[0]);
+        dialog.add(buttons[1]);
+        
+        // 设置默认按钮
+        dialog.getRootPane().setDefaultButton(buttons[1]);
+        
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.setVisible(true);
+        return result[0];
+    }
+
+    /**
+     * 删除成功对话框 - 显示删除操作结果
+     * @param parent 父组件
+     * @param itemName 已删除的项目名称
+     * @param itemId 已删除的项目ID
+     */
+    public static void showDeleteSuccessDialog(Component parent, String itemName, int itemId) {
+        JDialog dialog = new JDialog((JFrame) null, "删除成功", true);
+        dialog.setSize(420, 260);
+        dialog.setLayout(null);
+        dialog.setResizable(false);
+        dialog.setLocationRelativeTo(parent);
+
+        // 设置对话框背景色
+        dialog.getContentPane().setBackground(new Color(245, 250, 255));
+
+        // 成功图标
+        JLabel iconLabel = new JLabel(u.getImageIcon("success", 70, 70));
+        iconLabel.setBounds(30, 30, 70, 70);
+        dialog.add(iconLabel);
+
+        // 主标题
+        JLabel titleLabel = new JLabel("删除成功");
+        titleLabel.setFont(new Font("微软雅黑", Font.BOLD, 24));
+        titleLabel.setForeground(new Color(76, 175, 80));
+        titleLabel.setBounds(120, 30, 200, 35);
+        dialog.add(titleLabel);
+
+        // 成功消息
+        String message = String.format("<html><div style='width: 300px;'>" +
+                "已成功删除以下项目：<br><br>" +
+                "<b>%s</b> (ID: %d)<br><br>" +
+                "该项目已从系统中永久移除。</div></html>", 
+                itemName, itemId);
+        
+        JLabel msgLabel = new JLabel(message);
+        msgLabel.setFont(new Font("微软雅黑", Font.PLAIN, 14));
+        msgLabel.setForeground(new Color(66, 66, 66));
+        msgLabel.setBounds(120, 70, 300, 100);
+        dialog.add(msgLabel);
+
+        // 确定按钮
+        iButton okBtn = createButton("确定", iButton.ButtonType.PRIMARY, dialog::dispose);
+        okBtn.setFont(new Font("微软雅黑", Font.BOLD, 14));
+        okBtn.setPreferredSize(new Dimension(100, 40));
+        okBtn.setBounds(160, 180, 100, 40);
+        dialog.add(okBtn);
+        
+        // 设置默认按钮
+        dialog.getRootPane().setDefaultButton(okBtn);
+        
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.setVisible(true);
+    }
+
+    /**
+     * 通用删除确认对话框 - 简化版本
+     * @param parent 父组件
+     * @param title 标题
+     * @param message 消息内容
+     * @return 用户是否确认删除
+     */
+    public static boolean showDeleteConfirmDialog(Component parent, String title, String message) {
+        JDialog dialog = new JDialog((JFrame) null, title, true);
+        dialog.setSize(450, 250);
+        dialog.setLayout(null);
+        dialog.setResizable(false);
+        dialog.setLocationRelativeTo(parent);
+
+        // 设置对话框背景色
+        dialog.getContentPane().setBackground(new Color(245, 250, 255));
+
+        // 警告图标
+        JLabel iconLabel = new JLabel(u.getImageIcon("warning", 60, 60));
+        iconLabel.setBounds(30, 30, 60, 60);
+        dialog.add(iconLabel);
+
+        // 主标题
+        JLabel titleLabel = new JLabel(title);
+        titleLabel.setFont(new Font("微软雅黑", Font.BOLD, 20));
+        titleLabel.setForeground(new Color(244, 67, 54));
+        titleLabel.setBounds(110, 30, 300, 30);
+        dialog.add(titleLabel);
+
+        // 消息内容
+        JLabel msgLabel = new JLabel("<html><div style='width: 350px;'>" + message + "</div></html>");
+        msgLabel.setFont(new Font("微软雅黑", Font.PLAIN, 14));
+        msgLabel.setForeground(new Color(66, 66, 66));
+        msgLabel.setBounds(110, 70, 350, 80);
+        dialog.add(msgLabel);
+
+        // 按钮区域
+        final boolean[] result = {false};
+        iButton[] buttons = createConfirmButtons("确认删除", "取消", 
+            () -> { result[0] = true; dialog.dispose(); }, 
+            dialog::dispose);
+        
+        buttons[0].setFont(new Font("微软雅黑", Font.BOLD, 14));
+        buttons[0].setPreferredSize(new Dimension(100, 40));
+        buttons[1].setFont(new Font("微软雅黑", Font.BOLD, 14));
+        buttons[1].setPreferredSize(new Dimension(100, 40));
+        
+        buttons[0].setBounds(120, 160, 100, 40);
+        buttons[1].setBounds(240, 160, 100, 40);
+        
+        dialog.add(buttons[0]);
+        dialog.add(buttons[1]);
+        
+        // 设置默认按钮
+        dialog.getRootPane().setDefaultButton(buttons[1]);
+        
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.setVisible(true);
+        return result[0];
+    }
+
     // Test
     public static void main(String[] args) {
         JFrame frame = new JFrame();

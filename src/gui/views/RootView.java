@@ -1,13 +1,14 @@
 package gui.views;
 
 import gui.components.BookViewer;
+import gui.components.BookSearchPanel;
 import gui.components.iButton;
 import gui.components.iDialog;
 import gui.components.iLabel;
 import sql.ConnectionPool;
 import sql.MySQLConfig;
 import sql.BorrowController;
-import entity.Book;
+import sql.Book;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,9 +19,10 @@ import static gui.actions.logoutSys;
 
 public class RootView extends JPanel implements ActionListener {
     BookViewer bookViewer;
-    iButton addButton = new iButton("添加图书", this);
-    iButton deleteButton = new iButton("删除图书", this);
-    iButton exitButton = new iButton("注销", this);
+    BookSearchPanel searchPanel;
+    iButton addButton;
+    iButton deleteButton;
+    iButton exitButton;
     int selectedBookId = 0;
 
     public RootView() {
@@ -47,112 +49,111 @@ public class RootView extends JPanel implements ActionListener {
         titlePanel.setBorder(BorderFactory.createEmptyBorder(10, 30, 0, 30));
         add(titlePanel, BorderLayout.NORTH);
 
-        // 图书浏览区加圆角白色面板和阴影
-        JPanel bookPanel = new JPanel(new BorderLayout());
-        bookPanel.setBackground(new Color(0,0,0,0));
-        JPanel cardPanel = new JPanel(new BorderLayout());
-        cardPanel.setBackground(Color.WHITE);
-        cardPanel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createEmptyBorder(18, 18, 18, 18),
-                BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(new Color(220, 230, 240), 1, true),
-                        BorderFactory.createEmptyBorder(10, 10, 10, 10)
-                )));
-        bookViewer = new gui.components.BookViewer(e -> {
-            selectedBookId = e.getID();
+        // 搜索和图书浏览区域
+        JPanel searchContainer = new JPanel(new BorderLayout());
+        searchContainer.setOpaque(false);
+        searchContainer.setBorder(BorderFactory.createEmptyBorder(10, 30, 10, 30));
+        
+        // 创建搜索面板（管理员模式，显示操作按钮）
+        searchPanel = new BookSearchPanel(e -> {
+            selectedBookId = Integer.parseInt(e.getActionCommand());
+            System.out.println("RootView 搜索选中图书ID: " + selectedBookId);
             idSelectedLabel.setText("您选择了ID为" + selectedBookId + "的图书");
             idSelectedLabel.setForeground(new Color(33, 150, 243));
-        }, true);
-        updateView();
-        cardPanel.add(bookViewer, BorderLayout.CENTER);
-        bookPanel.add(cardPanel, BorderLayout.CENTER);
-        bookPanel.setBorder(BorderFactory.createEmptyBorder(10, 30, 10, 30));
-        add(bookPanel, BorderLayout.CENTER);
+        }, true, 0); // 管理员模式，userId为0
+        
+        // 搜索控制按钮
+        JPanel searchControlPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 5));
+        searchControlPanel.setOpaque(false);
+        
+        iButton refreshBtn = createButton("刷新", iButton.ButtonType.NORMAL, e -> {
+            searchPanel.refreshSearchResults();
+            idSelectedLabel.setText("请选择要操作的图书");
+            idSelectedLabel.setForeground(new Color(120, 144, 156));
+        });
+        
+        iButton clearBtn = createButton("清空搜索", iButton.ButtonType.WARNING, e -> {
+            searchPanel.clearSearch();
+            idSelectedLabel.setText("请选择要操作的图书");
+            idSelectedLabel.setForeground(new Color(120, 144, 156));
+        });
+        
+        searchControlPanel.add(refreshBtn);
+        searchControlPanel.add(clearBtn);
+        
+        searchContainer.add(searchPanel, BorderLayout.CENTER);
+        searchContainer.add(searchControlPanel, BorderLayout.SOUTH);
+        
+        add(searchContainer, BorderLayout.CENTER);
 
-        // 底部操作按钮美化
-        addButton.setFont(new Font("微软雅黑", Font.BOLD, 16));
-        addButton.setBackground(new Color(33, 150, 243));
-        addButton.setForeground(Color.WHITE);
-        addButton.setFocusPainted(false);
-        addButton.setBorder(BorderFactory.createEmptyBorder(8, 24, 8, 24));
-        addButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        addButton.setBorder(BorderFactory.createLineBorder(new Color(33, 150, 243), 1, true));
-        addButton.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseEntered(java.awt.event.MouseEvent e) {
-                addButton.setBackground(new Color(25, 118, 210));
+        // 底部操作按钮区：添加图书、删除图书、注销（全部用iButton美化+复用）
+        addButton = createButton("添加图书", iButton.ButtonType.PRIMARY, e -> {
+            BookChangeView.showDialog(a -> updateView());
+        });
+        
+        deleteButton = createButton("删除图书", iButton.ButtonType.DANGER, e -> {
+            if (selectedBookId == 0) {
+                iDialog.dialogError(this, "错误", "请先选择要删除的图书");
+                return;
             }
-            @Override
-            public void mouseExited(java.awt.event.MouseEvent e) {
-                addButton.setBackground(new Color(33, 150, 243));
+            
+            // 获取图书信息以显示详细信息
+            Book[] allBooks = BorrowController.getAll();
+            String bookName = "未知图书";
+            for (Book book : allBooks) {
+                if (book.getId() == selectedBookId) {
+                    bookName = book.getTitle();
+                    break;
+                }
+            }
+            
+            // 使用新的删除确认弹窗
+            boolean choice = iDialog.showDeleteConfirmDialog(this, bookName, selectedBookId);
+            if (choice) {
+                // 执行删除操作
+                BorrowController.delete(selectedBookId);
+                
+                // 显示删除成功弹窗
+                iDialog.showDeleteSuccessDialog(this, bookName, selectedBookId);
+                
+                // 更新界面
+                updateView();
+                selectedBookId = 0;
+                idSelectedLabel.setText("请选择要操作的图书");
+                idSelectedLabel.setForeground(new Color(120, 144, 156));
             }
         });
-        deleteButton.setFont(new Font("微软雅黑", Font.BOLD, 16));
-        deleteButton.setBackground(new Color(244, 67, 54));
-        deleteButton.setForeground(Color.WHITE);
-        deleteButton.setFocusPainted(false);
-        deleteButton.setBorder(BorderFactory.createEmptyBorder(8, 24, 8, 24));
-        deleteButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        deleteButton.setBorder(BorderFactory.createLineBorder(new Color(244, 67, 54), 1, true));
-        deleteButton.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseEntered(java.awt.event.MouseEvent e) {
-                deleteButton.setBackground(new Color(211, 47, 47));
-            }
-            @Override
-            public void mouseExited(java.awt.event.MouseEvent e) {
-                deleteButton.setBackground(new Color(244, 67, 54));
-            }
+        
+        exitButton = createButton("注销", iButton.ButtonType.NORMAL, e -> {
+            JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
+            logoutSys(topFrame);
         });
-        exitButton.setFont(new Font("微软雅黑", Font.BOLD, 16));
-        exitButton.setBackground(new Color(120, 144, 156));
-        exitButton.setForeground(Color.WHITE);
-        exitButton.setFocusPainted(false);
-        exitButton.setBorder(BorderFactory.createEmptyBorder(8, 24, 8, 24));
-        exitButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        exitButton.setBorder(BorderFactory.createLineBorder(new Color(120, 144, 156), 1, true));
-        exitButton.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseEntered(java.awt.event.MouseEvent e) {
-                exitButton.setBackground(new Color(84, 110, 122));
-            }
-            @Override
-            public void mouseExited(java.awt.event.MouseEvent e) {
-                exitButton.setBackground(new Color(120, 144, 156));
-            }
-        });
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 30, 18));
-        buttonPanel.setOpaque(false);
-        buttonPanel.add(addButton);
-        buttonPanel.add(deleteButton);
-        buttonPanel.add(exitButton);
-        add(buttonPanel, BorderLayout.SOUTH);
+        
+        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 30, 18));
+        btnPanel.setOpaque(false);
+        btnPanel.add(addButton);
+        btnPanel.add(deleteButton);
+        btnPanel.add(exitButton);
+        add(btnPanel, BorderLayout.SOUTH);
+    }
+
+    private void updateView() {
+        // 刷新搜索面板的书籍列表，保持搜索状态
+        searchPanel.refreshSearchResults();
+    }
+
+    /**
+     * 创建美观的iButton，简化按钮复用
+     */
+    private iButton createButton(String text, iButton.ButtonType type, ActionListener listener) {
+        iButton btn = new iButton(text, type);
+        btn.setFont(new Font("微软雅黑", Font.BOLD, 16));
+        if (listener != null) btn.addActionListener(listener);
+        return btn;
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (selectedBookId == 0 && e.getSource() == deleteButton) {
-            iDialog.dialogError(this, "错误", "请先选择要删除的图书");
-            return;
-        }
-        if (e.getSource() == addButton) {
-            BookChangeView.showDialog(a -> updateView());
-        }
-        if (e.getSource() == deleteButton) {
-            boolean choice = iDialog.dialogConfirm(this, "确认删除", "确认删除ID为" + selectedBookId + "的图书吗？");
-            if (choice) {
-                BorrowController.delete(selectedBookId);
-                updateView();
-            }
-        }
-        if (e.getSource() == exitButton) {
-            JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
-            logoutSys(topFrame);
-        }
-    }
-
-    private void updateView() {
-        Book[] books = BorrowController.getAll();
-        bookViewer.updateItem(books);
+        // 保留原有的actionPerformed方法以兼容可能的其他事件处理
     }
 }

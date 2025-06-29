@@ -3,7 +3,7 @@ package gui.components;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
-import entity.Book;
+import sql.Book;
 
 /**
  * 通用图书列表显示组件，可用于用户界面和管理员界面
@@ -104,8 +104,8 @@ public class BookViewer extends JPanel {
             // 添加间距，确保书籍卡片之间有适当的间隔
             for (int i = 0; i < books.length; i++) {
                 Object book = books[i];
-                if (book instanceof entity.Book) {
-                    System.out.println("BookViewer updateItem id: " + ((entity.Book)book).getId());
+                if (book instanceof sql.Book) {
+                    System.out.println("BookViewer updateItem id: " + ((sql.Book)book).getId());
                 }
                 listPanel.add(new BookRow(book, listener, showOperation, userId));
                 

@@ -1,6 +1,6 @@
 package gui.components;
 
-import gui.components.iButton;
+
 import utils.u;
 
 import javax.swing.*;

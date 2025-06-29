@@ -3,8 +3,8 @@ package sql;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import entity.Book;
-import entity.BorrowRecord;
+import sql.Book;
+import sql.BorrowRecord;
 
 /**
  * 借阅控制器，负责借阅、归还、查询借阅记录等

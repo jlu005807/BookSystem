@@ -1,7 +1,7 @@
 package gui.components;
 
 import sql.BorrowController;
-import entity.Book;
+import sql.Book;
 import utils.u;
 
 import javax.swing.*;

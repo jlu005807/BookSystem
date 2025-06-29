@@ -7,7 +7,7 @@ import gui.components.iButton;
 import sql.ConnectionPool;
 import sql.MySQLConfig;
 import sql.BorrowController;
-import entity.Book;
+import sql.Book;
 
 import javax.swing.*;
 import java.awt.*;

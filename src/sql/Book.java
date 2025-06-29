@@ -1,4 +1,4 @@
-package entity;
+package sql;
 
 /**
  * 图书实体类

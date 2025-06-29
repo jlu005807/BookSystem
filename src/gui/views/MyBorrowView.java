@@ -1,14 +1,17 @@
 package gui.views;
 
+import gui.components.iButton;
 import gui.components.iDialog;
 import sql.BorrowController;
-import entity.BorrowRecord;
-import entity.Book;
+import sql.BorrowRecord;
+import sql.Book;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.sql.Date;
 import java.util.List;
 import java.util.Map;

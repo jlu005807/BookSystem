@@ -1,18 +1,16 @@
 package sql;
 
 import utils.u;
-import entity.UserItem;
+import sql.UserItem;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static sql.ConnectionPool.getConnection;
-
 public class UserController {
     public static UserItem search(int id) {
         String[] result = MySQLCMD.retrieve(
-                getConnection(),
+                ConnectionPool.getConnection(),
                 "user",
                 new String[]{"id", "username", "password", "registerTime", "comment"},
                 "id = " + id
@@ -30,7 +28,7 @@ public class UserController {
 
     public static UserItem search(String username) {
         String[] result = MySQLCMD.retrieve(
-                getConnection(),
+                ConnectionPool.getConnection(),
                 "user",
                 new String[]{"id", "username", "password", "registerTime", "comment"},
                 "username = " + username
@@ -48,7 +46,7 @@ public class UserController {
 
     public static boolean check(String username, String password) {
         String[] result = MySQLCMD.retrieve(
-                getConnection(),
+                ConnectionPool.getConnection(),
                 "user",
                 new String[]{"id", "username", "password", "registerTime", "comment"},
                 "username = '" + username + "' AND password = '" + password + "'"
@@ -60,7 +58,7 @@ public class UserController {
 
     public static UserItem[] getAll() {
         ArrayList<UserItem> data = new ArrayList<>();
-        int maxID = MySQLCMD.getMaxId(getConnection(), "user");
+        int maxID = MySQLCMD.getMaxId(ConnectionPool.getConnection(), "user");
         for (int i = 1; i <= maxID; i++) {
             UserItem item = search(i);
             if (item != null) data.add(item);
@@ -75,7 +73,7 @@ public class UserController {
                 item.comment
         };
         return MySQLCMD.insert(
-                getConnection(),
+                ConnectionPool.getConnection(),
                 "user",
                 new String[]{"username", "password", "comment"},
                 values
@@ -91,7 +89,7 @@ public class UserController {
                 newItem.comment
         };
         return MySQLCMD.update(
-                getConnection(),
+                ConnectionPool.getConnection(),
                 "user",
                 new String[]{"id", "username", "password", "registerTime", "comment"},
                 values,
@@ -101,7 +99,7 @@ public class UserController {
 
     public static String changePassword(String newPassword, int id) {
         return MySQLCMD.update(
-                getConnection(),
+                ConnectionPool.getConnection(),
                 "user",
                 new String[]{"password"},
                 new String[]{newPassword},
@@ -111,7 +109,7 @@ public class UserController {
 
     public static String delete(int id) {
         return MySQLCMD.delete(
-                getConnection(),
+                ConnectionPool.getConnection(),
                 "user",
                 "id = " + id
         );
