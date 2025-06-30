@@ -132,4 +132,31 @@ public class UserController {
                 "id = " + id
         );
     }
+
+    // 新增：登录校验并返回用户对象
+    public static UserItem checkAndGetUser(String username, String password) {
+        String[] result = MySQLCMD.retrieve(
+                ConnectionPool.getConnection(),
+                "user",
+                new String[]{"id", "username", "password", "registerTime", "comment"},
+                "username = '" + username + "' AND password = '" + password + "'"
+        );
+        if (result == null) return null;
+        u.log("查询结果：" + Arrays.toString(result));
+        java.sql.Timestamp regTime = null;
+        try {
+            regTime = java.sql.Timestamp.valueOf(result[3]);
+        } catch (Exception e) {
+            try {
+                regTime = result[3] != null ? java.sql.Timestamp.valueOf(result[3] + " 00:00:00") : null;
+            } catch (Exception ignore) {}
+        }
+        return new UserItem(
+                Integer.parseInt(result[0]),
+                result[1],
+                result[2],
+                regTime,
+                result[4]
+        );
+    }
 }

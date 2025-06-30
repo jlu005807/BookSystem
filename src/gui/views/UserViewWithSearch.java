@@ -22,8 +22,10 @@ public class UserViewWithSearch extends JPanel implements ActionListener {
     private BookSearchPanel searchPanel;
     private iButton logoutButton;
     private int selectedBookId = 0;
+    private int userId;
 
-    public UserViewWithSearch() {
+    public UserViewWithSearch(int userId) {
+        this.userId = userId;
         setLayout(new BorderLayout());
         setBackground(new Color(245, 250, 255));
 
@@ -108,7 +110,7 @@ public class UserViewWithSearch extends JPanel implements ActionListener {
             
         if (choice) {
             // 这里需要传入实际的用户ID，暂时使用1作为示例
-            boolean success = BorrowController.borrowBook(selectedBookId, 1, new java.sql.Date(System.currentTimeMillis()));
+            boolean success = BorrowController.borrowBook(selectedBookId, this.userId, new java.sql.Date(System.currentTimeMillis()));
             if (success) {
                 iDialog.showSuccessDialog(this, "借阅成功", "您已成功借阅《" + selectedBook.getTitle() + "》！");
                 searchPanel.refreshBookList(); // 刷新列表
@@ -130,9 +132,10 @@ public class UserViewWithSearch extends JPanel implements ActionListener {
     public static void main(String[] args) {
         // 初始化数据库连接
         sql.ConnectionPool.init(new sql.MySQLConfig("rental"));
-        
+        // 假设测试用户id为1
+        int testUserId = 1;
         iWindow window = new iWindow("图书搜索与借阅系统", 900, 700, true);
-        window.setContentPane(new UserViewWithSearch());
+        window.setContentPane(new UserViewWithSearch(testUserId));
         window.done();
     }
 } 

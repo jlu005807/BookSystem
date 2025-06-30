@@ -80,15 +80,12 @@ public class AccountView {
             ActionListener doLogin = e -> {
                 final String user = usernameField.getText();
                 final String password = new String(passwordField.getPassword());
-                if (UserController.check(user, password)) {
+                sql.UserItem loginUser = UserController.checkAndGetUser(user, password);
+                if (loginUser != null) {
                     iDialog.showLoginSuccessDialog(w, user);
-                    // 获取userId
-                    sql.UserItem userItem = UserController.search("'" + user + "'");
-                    int userId = userItem != null ? userItem.id : 0;
-                    // 通过ActionEvent传递userId
-                    actionPopup(w, listener, userId,
-                            user.equals("root") ? "root" : "user"
-                    );
+                    // 传递userId到主界面
+                    ActionEvent loginEvent = new ActionEvent(loginUser, 0, user.equals("root") ? "root" : "user");
+                    actionPopup(w, listener, loginUser.id, loginEvent.getActionCommand());
                     w.dispose();
                 } else {
                     errorMessage.setText("用户名或密码错误!");

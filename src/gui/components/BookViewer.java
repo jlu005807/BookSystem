@@ -14,6 +14,7 @@ public class BookViewer extends JPanel {
     private JPanel listPanel;
     private JScrollPane scrollPane;
     private int userId = 0; // 用户ID，用于检查借阅状态
+    private BookRow selectedRow = null; // 当前选中的行
 
     /**
      * @param listener 点击行时的回调
@@ -88,6 +89,7 @@ public class BookViewer extends JPanel {
 
     public void updateItem(Object[] books) {
         listPanel.removeAll();
+        selectedRow = null; // 刷新时清空选中
         if (books == null || books.length == 0) {
             // 创建美观的空状态提示
             JPanel emptyPanel = new JPanel(new BorderLayout());
@@ -107,7 +109,15 @@ public class BookViewer extends JPanel {
                 if (book instanceof sql.Book) {
                     System.out.println("BookViewer updateItem id: " + ((sql.Book)book).getId());
                 }
-                listPanel.add(new BookRow(book, listener, showOperation, userId));
+                BookRow row = new BookRow(book, e -> {
+                    // 单选高亮逻辑
+                    if (selectedRow != null) selectedRow.setSelected(false);
+                    selectedRow = (BookRow) e.getSource();
+                    selectedRow.setSelected(true);
+                    // 继续原有回调
+                    if (listener != null) listener.actionPerformed(e);
+                }, showOperation, userId);
+                listPanel.add(row);
                 
                 // 在书籍卡片之间添加间距（除了最后一个）
                 if (i < books.length - 1) {

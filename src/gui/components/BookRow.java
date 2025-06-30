@@ -18,6 +18,7 @@ public class BookRow extends JPanel {
     private Color borrowedBg = new Color(255, 248, 220); // 已借阅的背景色
     private Color borrowedBorderColor = new Color(255, 193, 7); // 已借阅的边框色
     private boolean isBorrowed = false;
+    private boolean isSelected = false;
 
     public <E> BookRow(E book, ActionListener listener, boolean showOperation) {
         this(book, listener, showOperation, 0); // 默认用户ID为0
@@ -133,25 +134,29 @@ public class BookRow extends JPanel {
         // 鼠标悬停高亮
         addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                setBorder(BorderFactory.createCompoundBorder(
-                    BorderFactory.createEmptyBorder(6, 12, 6, 12),
-                    BorderFactory.createLineBorder(new Color(33, 150, 243), 2, true)
-                ));
-                repaint();
+                if (!isSelected) {
+                    setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createEmptyBorder(6, 12, 6, 12),
+                        BorderFactory.createLineBorder(new Color(33, 150, 243), 2, true)
+                    ));
+                    repaint();
+                }
             }
             public void mouseExited(java.awt.event.MouseEvent evt) {
-                if (!isBorrowed) {
-                    setBorder(BorderFactory.createCompoundBorder(
-                        BorderFactory.createEmptyBorder(6, 12, 6, 12),
-                        BorderFactory.createLineBorder(borderColor, 1, true)
-                    ));
-                } else {
-                    setBorder(BorderFactory.createCompoundBorder(
-                        BorderFactory.createEmptyBorder(6, 12, 6, 12),
-                        BorderFactory.createLineBorder(borrowedBorderColor, 2, true)
-                    ));
+                if (!isSelected) {
+                    if (!isBorrowed) {
+                        setBorder(BorderFactory.createCompoundBorder(
+                            BorderFactory.createEmptyBorder(6, 12, 6, 12),
+                            BorderFactory.createLineBorder(borderColor, 1, true)
+                        ));
+                    } else {
+                        setBorder(BorderFactory.createCompoundBorder(
+                            BorderFactory.createEmptyBorder(6, 12, 6, 12),
+                            BorderFactory.createLineBorder(borrowedBorderColor, 2, true)
+                        ));
+                    }
+                    repaint();
                 }
-                repaint();
             }
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 if (evt.getSource() == BookRow.this) {
@@ -186,5 +191,32 @@ public class BookRow extends JPanel {
         g2.fillRoundRect(0, 0, getWidth(), getHeight()-2, 18, 18);
         super.paintComponent(g2);
         g2.dispose();
+    }
+
+    // 选中/取消选中高亮
+    public void setSelected(boolean selected) {
+        this.isSelected = selected;
+        if (selected) {
+            setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createEmptyBorder(6, 12, 6, 12),
+                BorderFactory.createLineBorder(new Color(25, 118, 210), 3, true)
+            ));
+            setBackground(new Color(227, 242, 253));
+        } else {
+            if (isBorrowed) {
+                setBackground(borrowedBg);
+                setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createEmptyBorder(6, 12, 6, 12),
+                    BorderFactory.createLineBorder(borrowedBorderColor, 2, true)
+                ));
+            } else {
+                setBackground(normalBg);
+                setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createEmptyBorder(6, 12, 6, 12),
+                    BorderFactory.createLineBorder(borderColor, 1, true)
+                ));
+            }
+        }
+        repaint();
     }
 } 
