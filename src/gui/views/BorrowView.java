@@ -13,7 +13,6 @@ import java.awt.event.ActionEvent;
 
 public class BorrowView extends JDialog {
     public BorrowView(int bookId, int userId, ActionListener needUpdate) {
-        System.out.println("BorrowView 传入 bookId: " + bookId);
         Book[] books = BorrowController.getAll();
         Book book = null;
         for (Book b : books) {

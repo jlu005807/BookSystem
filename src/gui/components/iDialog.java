@@ -512,18 +512,4 @@ public class iDialog {
         dialog.setVisible(true);
     }
 
-    // Test
-    public static void main(String[] args) {
-        JFrame frame = new JFrame();
-        frame.setSize(500, 500);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setVisible(true);
-        dialogMessage(frame, "Message", "This is a message.");
-        dialogError(frame, "Error", "This is an error.");
-        dialogWarning(frame, "Warning", "This is a warning.");
-        System.out.println(dialogConfirm(frame, "Confirm", "Do you want to continue?"));
-        System.out.println(dialogInput(frame, "Input", "Please input your name:"));
-        System.out.println(dialogChoice(frame, "Choice", "Please choose one:", new String[]{"A", "B", "C", "D"}));
-    }
-
 }

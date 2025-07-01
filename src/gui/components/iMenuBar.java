@@ -107,19 +107,4 @@ public class iMenuBar extends JMenu {
                 break;
         }
     }
-
-    // 测试
-    public static void main(String[] args) {
-        JFrame frame = new JFrame();
-        frame.setSize(500, 500);
-        frame.setResizable(false);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        JMenuBar menuBar = new JMenuBar();
-//        menuBar.add(new iMenuBar(frame, "file"));
-//        menuBar.add(new iMenuBar(frame, "login"));
-//        menuBar.add(new iMenuBar(frame, "register"));
-//        menuBar.add(new iMenuBar(frame, "help"));
-        frame.setJMenuBar(menuBar);
-        frame.setVisible(true);
-    }
 }

@@ -2,6 +2,7 @@ package gui.components;
 
 import sql.BorrowController;
 import sql.Book;
+import utils.Constants;
 import utils.u;
 
 import javax.swing.*;
@@ -149,15 +150,7 @@ public class BookSearchPanel extends JPanel {
             refreshBookList();
             resultLabel.setVisible(false); // 隐藏结果提示
         } else {
-            Book[] books = BorrowController.searchBooks(keyword);
-            bookViewer.updateItem(books);
-            
-            // 显示搜索结果统计
-            if (books.length == 0) {
-                showSearchResult("未找到相关书籍", false);
-            } else {
-                showSearchResult("找到 " + books.length + " 本相关书籍", true);
-            }
+            updateSearchResults(keyword);
         }
     }
 
@@ -178,16 +171,22 @@ public class BookSearchPanel extends JPanel {
         if (keyword.isEmpty()) {
             refreshBookList();
         } else {
-            // 重新执行当前搜索
-            Book[] books = BorrowController.searchBooks(keyword);
-            bookViewer.updateItem(books);
-            
-            // 更新搜索结果统计
-            if (books.length == 0) {
-                showSearchResult("未找到相关书籍", false);
-            } else {
-                showSearchResult("找到 " + books.length + " 本相关书籍", true);
-            }
+            updateSearchResults(keyword);
+        }
+    }
+
+    /**
+     * 更新搜索结果（提取公共逻辑）
+     */
+    private void updateSearchResults(String keyword) {
+        Book[] books = BorrowController.searchBooks(keyword);
+        bookViewer.updateItem(books);
+        
+        // 显示搜索结果统计
+        if (books.length == 0) {
+            showSearchResult(Constants.MSG_BOOK_NOT_FOUND, false);
+        } else {
+            showSearchResult(String.format(Constants.MSG_BOOK_FOUND, books.length), true);
         }
     }
 
@@ -198,9 +197,9 @@ public class BookSearchPanel extends JPanel {
         resultLabel.setText(message);
         resultLabel.setVisible(true);
         if (isSuccess) {
-            resultLabel.setForeground(new Color(33, 150, 243));
+            resultLabel.setForeground(Constants.PRIMARY_COLOR);
         } else {
-            resultLabel.setForeground(Color.RED);
+            resultLabel.setForeground(Constants.DANGER_COLOR);
         }
     }
 

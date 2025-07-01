@@ -127,15 +127,4 @@ public class UserViewWithSearch extends JPanel implements ActionListener {
             logoutSys(topFrame);
         }
     }
-
-    // 测试方法
-    public static void main(String[] args) {
-        // 初始化数据库连接
-        sql.ConnectionPool.init(new sql.MySQLConfig("rental"));
-        // 假设测试用户id为1
-        int testUserId = 1;
-        iWindow window = new iWindow("图书搜索与借阅系统", 900, 700, true);
-        window.setContentPane(new UserViewWithSearch(testUserId));
-        window.done();
-    }
 } 

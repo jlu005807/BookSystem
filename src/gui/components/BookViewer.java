@@ -89,26 +89,10 @@ public class BookViewer extends JPanel {
 
     public void updateItem(Object[] books) {
         listPanel.removeAll();
-        selectedRow = null; // 刷新时清空选中
-        if (books == null || books.length == 0) {
-            // 创建美观的空状态提示
-            JPanel emptyPanel = new JPanel(new BorderLayout());
-            emptyPanel.setOpaque(false);
-            emptyPanel.setBorder(BorderFactory.createEmptyBorder(50, 20, 50, 20));
-            
-            JLabel emptyLabel = new JLabel("暂无图书信息", SwingConstants.CENTER);
-            emptyLabel.setFont(new Font("微软雅黑", Font.PLAIN, 16));
-            emptyLabel.setForeground(new Color(120, 144, 156));
-            
-            emptyPanel.add(emptyLabel, BorderLayout.CENTER);
-            listPanel.add(emptyPanel);
-        } else {
+        if (books != null && books.length > 0) {
             // 添加间距，确保书籍卡片之间有适当的间隔
             for (int i = 0; i < books.length; i++) {
                 Object book = books[i];
-                if (book instanceof sql.Book) {
-                    System.out.println("BookViewer updateItem id: " + ((sql.Book)book).getId());
-                }
                 BookRow row = new BookRow(book, e -> {
                     // 单选高亮逻辑
                     if (selectedRow != null) selectedRow.setSelected(false);

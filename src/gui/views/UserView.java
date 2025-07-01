@@ -72,13 +72,13 @@ public class UserView extends JPanel {
         JPanel searchControlPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 5));
         searchControlPanel.setOpaque(false);
         
-        iButton refreshBtn = createButton("刷新", iButton.ButtonType.NORMAL, e -> {
+        iButton refreshBtn = iButton.create("刷新", iButton.ButtonType.NORMAL, e -> {
             searchPanel.refreshSearchResults();
             idSelectedLabel.setText("请选择要借阅的图书");
             idSelectedLabel.setForeground(new Color(120, 144, 156));
         });
         
-        iButton clearBtn = createButton("清空搜索", iButton.ButtonType.WARNING, e -> {
+        iButton clearBtn = iButton.create("清空搜索", iButton.ButtonType.WARNING, e -> {
             searchPanel.clearSearch();
             idSelectedLabel.setText("请选择要借阅的图书");
             idSelectedLabel.setForeground(new Color(120, 144, 156));
@@ -93,10 +93,10 @@ public class UserView extends JPanel {
         add(searchContainer, BorderLayout.CENTER);
 
         // 底部按钮区：我的借阅、注销（全部用iButton美化+复用）
-        gui.components.iButton myBorrowBtn = createButton("我的借阅", gui.components.iButton.ButtonType.PRIMARY, e -> {
+        iButton myBorrowBtn = iButton.create("我的借阅", iButton.ButtonType.PRIMARY, e -> {
             new MyBorrowView((Frame) SwingUtilities.getWindowAncestor(this), this.userId, () -> updateView());
         });
-        gui.components.iButton logoutBtn = createButton("注销", gui.components.iButton.ButtonType.DANGER, e -> {
+        iButton logoutBtn = iButton.create("注销", iButton.ButtonType.DANGER, e -> {
             JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
             gui.actions.logoutSys(topFrame);
         });
@@ -110,15 +110,5 @@ public class UserView extends JPanel {
     private void updateView() {
         // 刷新搜索面板的书籍列表，保持搜索状态
         searchPanel.refreshSearchResults();
-    }
-
-    /**
-     * 创建美观的iButton，简化按钮复用
-     */
-    private gui.components.iButton createButton(String text, gui.components.iButton.ButtonType type, java.awt.event.ActionListener listener) {
-        gui.components.iButton btn = new gui.components.iButton(text, type);
-        btn.setFont(new Font("微软雅黑", Font.BOLD, 16));
-        if (listener != null) btn.addActionListener(listener);
-        return btn;
     }
 }

@@ -40,7 +40,6 @@ public class BookRow extends JPanel {
         if (book instanceof Book) {
             Book b = (Book) book;
             this.id = b.getId();
-            System.out.println("BookRow 构造 id: " + this.id);
 
             // 检查用户是否已借阅这本书
             if (userId > 0) {
@@ -80,7 +79,7 @@ public class BookRow extends JPanel {
             numLabel.setFont(new Font("微软雅黑", Font.BOLD, 13));
             if (b.getNumLeft() == 0) {
                 numLabel.setForeground(new Color(244, 67, 54)); // 红色
-            } else if (b.getNumLeft() <= 2) {
+            } else if (b.getNumLeft() > 0 && b.getNumLeft() < b.getNumAll()) {
                 numLabel.setForeground(new Color(255, 152, 0)); // 橙色
             } else {
                 numLabel.setForeground(new Color(76, 175, 80)); // 绿色

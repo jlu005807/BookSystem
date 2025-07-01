@@ -72,12 +72,4 @@ public class iWindow extends JFrame {
     public void done() {
         setVisible(true);
     }
-
-
-    // 测试
-    public static void main(String[] args) {
-        iWindow w = new iWindow("欢迎", 500, 500);
-//        w.setWelcomeMenuBar();
-        w.done();
-    }
 }

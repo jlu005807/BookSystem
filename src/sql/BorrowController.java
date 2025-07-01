@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import sql.Book;
 import sql.BorrowRecord;
+import utils.Constants;
+import utils.u;
 
 /**
  * 借阅控制器，负责借阅、归还、查询借阅记录等
@@ -252,7 +254,7 @@ public class BorrowController {
 
     // 检查用户是否达到借阅上限（3本）
     public static boolean hasReachedBorrowLimit(int userId) {
-        return getUserCurrentBorrowCount(userId) >= 3;
+        return getUserCurrentBorrowCount(userId) >= Constants.MAX_BORROW_LIMIT;
     }
 
     // 判断是否存在同名同作者的书籍

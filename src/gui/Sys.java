@@ -122,8 +122,4 @@ public class Sys {
     public iWindow getWindow() {
         return w;
     }
-
-    public static void main(String[] args) {
-        new Sys();
-    }
 }

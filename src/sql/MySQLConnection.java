@@ -37,10 +37,5 @@ public class MySQLConnection {
             e.printStackTrace();
         }
     }
-
-    public static void main(String[] args) { //测试连接
-        Connection c = MySQLConnection.connect(new MySQLConfig("rental"));
-        u.log(String.valueOf(c));
-    }
 }
 

@@ -27,8 +27,4 @@ public class UserItem {
                 "comment: " + comment
         );
     }
-
-    public static void main(String[] args) {
-
-    }
 }

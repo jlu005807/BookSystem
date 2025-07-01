@@ -179,38 +179,30 @@ public class iButton extends JButton {
     }
 
     /**
-     * 测试所有按钮
+     * 静态工厂方法：创建标准化的按钮
+     * @param text 按钮文本
+     * @param type 按钮类型
+     * @param listener 事件监听器
+     * @param fontSize 字体大小
+     * @return 配置好的按钮
      */
-    public static void main(String[] args) {
-        JFrame frame = new JFrame();
-        frame.setSize(500, 500);
-        frame.setLayout(null);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    public static iButton create(String text, ButtonType type, ActionListener listener, int fontSize) {
+        iButton btn = new iButton(text, type);
+        btn.setFont(new Font("微软雅黑", Font.BOLD, fontSize));
+        if (listener != null) {
+            btn.addActionListener(listener);
+        }
+        return btn;
+    }
 
-        iButton button1 = new iButton("普通按钮", ButtonType.NORMAL);
-        iButton button2 = new iButton("主要按钮", ButtonType.PRIMARY);
-        iButton button3 = new iButton("警告按钮", ButtonType.WARNING);
-        iButton button4 = new iButton("危险按钮", ButtonType.DANGER);
-        iButton button5 = new iButton("较小按钮", ButtonType.SMALL);
-        iButton button6 = new iButton("较小主要按钮", ButtonType.SMALL_PRIMARY);
-        iButton button7 = new iButton("flag", new Dimension(50, 50));
-
-        button1.setLocation(50, 50);
-        button2.setLocation(50, 150);
-        button3.setLocation(50, 250);
-        button4.setLocation(50, 350);
-        button5.setLocation(250, 50);
-        button6.setLocation(250, 150);
-        button7.setLocation(250, 250);
-
-        frame.add(button1);
-        frame.add(button2);
-        frame.add(button3);
-        frame.add(button4);
-        frame.add(button5);
-        frame.add(button6);
-        frame.add(button7);
-
-        frame.setVisible(true);
+    /**
+     * 静态工厂方法：创建标准化的按钮（默认字体大小16）
+     * @param text 按钮文本
+     * @param type 按钮类型
+     * @param listener 事件监听器
+     * @return 配置好的按钮
+     */
+    public static iButton create(String text, ButtonType type, ActionListener listener) {
+        return create(text, type, listener, 16);
     }
 }
