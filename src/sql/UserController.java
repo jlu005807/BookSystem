@@ -85,15 +85,18 @@ public class UserController {
     }
 
     public static String create(UserItem item) {
+        // 获取当前时间
+        java.sql.Timestamp now = new java.sql.Timestamp(System.currentTimeMillis());
         String[] values = {
                 item.username,
                 item.password,
+                now.toString(),
                 item.comment
         };
         return MySQLCMD.insert(
                 ConnectionPool.getConnection(),
                 "user",
-                new String[]{"username", "password", "comment"},
+                new String[]{"username", "password", "registerTime", "comment"},
                 values
         );
     }

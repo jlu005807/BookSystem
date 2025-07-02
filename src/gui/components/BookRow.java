@@ -159,7 +159,6 @@ public class BookRow extends JPanel {
             }
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 if (evt.getSource() == BookRow.this) {
-                    System.out.println("BookRow 被点击，id: " + id);
                     if (listener != null) {
                         ActionEvent e = new ActionEvent(BookRow.this, ActionEvent.ACTION_PERFORMED, String.valueOf(id));
                         listener.actionPerformed(e);

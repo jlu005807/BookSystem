@@ -33,10 +33,6 @@ public class BorrowController {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        System.out.println("getAll() 查询到的所有图书：");
-        for (Book b : books) {
-            System.out.println("查到的图书ID: " + b.getId() + ", 书名: " + b.getTitle());
-        }
         return books.toArray(new Book[0]);
     }
 
@@ -198,7 +194,6 @@ public class BorrowController {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        System.out.println("searchBooks() 搜索关键词 '" + keyword + "' 找到 " + books.size() + " 本书");
         return books.toArray(new Book[0]);
     }
 

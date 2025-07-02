@@ -52,7 +52,6 @@ public class UserView extends JPanel {
         // 创建搜索面板
         searchPanel = new BookSearchPanel(e -> {
             int selectedBookId = Integer.parseInt(e.getActionCommand());
-            System.out.println("UserView 搜索选中图书ID: " + selectedBookId);
             // 查找书名
             String bookTitle = "未知图书";
             Book[] allBooks = BorrowController.getAll();

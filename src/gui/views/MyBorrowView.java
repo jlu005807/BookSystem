@@ -9,6 +9,7 @@ import sql.Book;
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellEditor;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -20,8 +21,10 @@ import java.util.Comparator;
 import java.util.ArrayList;
 
 public class MyBorrowView extends JDialog {
+    private Runnable onReturn;
     public MyBorrowView(Frame owner, int userId, Runnable onReturn) {
         super(owner, "我的借阅", true);
+        this.onReturn = onReturn;
         setLayout(new BorderLayout(10, 10));
         List<BorrowRecord> records = BorrowController.getRecordsByUserId(userId);
         // 优化排序：未归还的在前，已归还的在后，组内按借阅时间倒序
@@ -91,34 +94,8 @@ public class MyBorrowView extends JDialog {
             if (record.getReturnTime() != null) btn.setText("-");
             return btn;
         });
-        table.getColumnModel().getColumn(4).setCellEditor(new DefaultCellEditor(new JCheckBox()) {
-            private JButton btn;
-            private int editingRow;
-            {
-                btn = new JButton("归还");
-                btn.setBackground(new Color(33, 150, 243));
-                btn.setForeground(Color.WHITE);
-                btn.setFocusPainted(false);
-                btn.setFont(new Font("微软雅黑", Font.PLAIN, 14));
-                btn.addActionListener(e -> {
-                    BorrowRecord record = (BorrowRecord) model.getValueAt(editingRow, 4);
-                    boolean confirm = iDialog.showConfirmDialog(MyBorrowView.this, "确认归还", "\uD83D\uDCD6  确认归还该图书？");
-                    if (confirm) {
-                        BorrowController.returnBook(record.getId(), new Date(System.currentTimeMillis()));
-                        iDialog.showSuccessDialog(MyBorrowView.this, "归还成功", "\uD83C\uDF89 图书已归还，感谢您的配合！");
-                        dispose();
-                        if (onReturn != null) onReturn.run();
-                    }
-                });
-            }
-            @Override
-            public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-                editingRow = row;
-                BorrowRecord record = (BorrowRecord) value;
-                btn.setEnabled(record.getReturnTime() == null);
-                return btn;
-            }
-        });
+        // 用内部类实现 TableCellEditor，彻底修正匿名类 @Override 报错
+        table.getColumnModel().getColumn(4).setCellEditor(new BorrowButtonEditor());
 
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -185,5 +162,43 @@ public class MyBorrowView extends JDialog {
         setSize(700, 400);
         setLocationRelativeTo(owner);
         setVisible(true);
+    }
+
+    // 在类末尾添加内部类
+    class BorrowButtonEditor extends AbstractCellEditor implements javax.swing.table.TableCellEditor {
+        private JButton btn = new JButton("归还");
+        private BorrowRecord currentRecord;
+        public BorrowButtonEditor() {
+            btn.setBackground(new Color(33, 150, 243));
+            btn.setForeground(Color.WHITE);
+            btn.setFocusPainted(false);
+            btn.setFont(new Font("微软雅黑", Font.PLAIN, 14));
+            btn.addActionListener(e -> {
+                if (currentRecord != null && currentRecord.getReturnTime() == null) {
+                    boolean confirm = iDialog.showConfirmDialog(MyBorrowView.this, "确认归还", "\uD83D\uDCD6  确认归还该图书？");
+                    if (confirm) {
+                        BorrowController.returnBook(currentRecord.getId(), new Date(System.currentTimeMillis()));
+                        iDialog.showSuccessDialog(MyBorrowView.this, "归还成功", "\uD83C\uDF89 图书已归还，感谢您的配合！");
+                        dispose();
+                        if (MyBorrowView.this.onReturn != null) MyBorrowView.this.onReturn.run();
+                    }
+                }
+            });
+        }
+        @Override
+        public Object getCellEditorValue() {
+            return currentRecord;
+        }
+        @Override
+        public java.awt.Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+            if (value instanceof BorrowRecord) {
+                currentRecord = (BorrowRecord) value;
+                btn.setEnabled(currentRecord.getReturnTime() == null);
+            } else {
+                currentRecord = null;
+                btn.setEnabled(false);
+            }
+            return btn;
+        }
     }
 } 
