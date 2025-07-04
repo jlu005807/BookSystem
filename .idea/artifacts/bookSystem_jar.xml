@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="bookSystem:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/bookSystem_jar</output-path>
+    <root id="archive" name="bookSystem.jar">
+      <element id="module-output" name="bookSystem" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/src/lib/mysql-connector-j-8.0.33.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
